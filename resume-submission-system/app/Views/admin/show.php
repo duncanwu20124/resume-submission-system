@@ -30,6 +30,6 @@ if ($ext === 'pdf'):
 <?php endif; ?>
 
 <br><br>
-<a href="javascript:history.back()">返回上一頁</a>
+<a href="/AdminController" onclick="if(document.referrer && document.referrer.includes('/AdminController')) { history.back(); return false; }">返回上一頁</a>
 </body>
 </html>

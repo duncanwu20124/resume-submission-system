@@ -45,7 +45,7 @@ input, button { margin: 3px; padding: 3px; }
 <td><?= htmlspecialchars($user['file_name']) ?></td>
 <td><?= $user['uploaded_at'] ?></td>
 <td>
-<a href="/AdminController/show/<?= $user['id'] ?>" target="_blank">查看</a>
+<a href="/AdminController/show/<?= $user['id'] ?>">查看</a>
 <a href="/AdminController/download/<?= $user['id'] ?>">下載</a>
 </td>
 </tr>
