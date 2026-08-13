@@ -194,6 +194,72 @@
             border-radius: 9999px;
         }
 
+
+        .info-panel {
+            margin: 0 auto 2rem;
+            width: calc(100% - 2rem);
+            max-width: none;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+        }
+
+        .info-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #312e81;
+            margin-bottom: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .info-value {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .notice-box {
+            margin-top: 1rem;
+            padding: 0.9rem 1rem;
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+            color: #92400e;
+            border-radius: 0.5rem;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         footer {
             padding: 1.5rem;
             text-align: center;
@@ -217,6 +283,38 @@
         <div class="hero-container">
             <h1 class="hero-title">歡迎使用履歷上傳與管理系統</h1>
             <p class="hero-subtitle">請選擇您的身分存取系統功能。學生可上傳與管理履歷檔案；教授可檢閱與下載審核。</p>
+
+
+            <!-- 繳交資訊：日期可依實際時程修改 -->
+            <section class="info-panel" aria-label="履歷繳交資訊">
+                <div class="info-panel-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    履歷繳交資訊
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">繳交開始</span>
+                        <span class="info-value">2026 / 08 / 15</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">繳交期限</span>
+                        <span class="info-value">2026 / 08 / 31 23:59</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">檔案規範</span>
+                        <span class="info-value">PDF，3 MB 以下</span>
+                    </div>
+                </div>
+
+                <div class="notice-box">
+                    <strong>注意事項：</strong>請確認履歷內容與個人資料正確後再上傳；如需更新履歷，可於學生端刪除舊檔後重新上傳。
+                </div>
+            </section>
 
             <div class="portal-grid">
                 <!-- 學生登入區塊 -->
