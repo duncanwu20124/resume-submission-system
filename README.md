@@ -12,4 +12,4 @@ cd resume-submission-system/
 php spark serve
 ```
 
-3. visit http://localhost:8080 
+3. visit http://localhost:8080

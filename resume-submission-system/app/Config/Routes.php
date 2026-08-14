@@ -12,6 +12,10 @@ $routes->group('student', function ($routes) {
     $routes->post('register', 'Student\AuthController::processRegister');
     $routes->get('logout', 'Student\AuthController::logout');
     $routes->get('dashboard', 'Student\DashboardController::index', ['filter' => 'student_auth']);
+    $routes->post('upload', 'Student\DashboardController::upload', ['filter' => 'student_auth']);
+    $routes->get('viewFile', 'Student\DashboardController::viewFile', ['filter' => 'student_auth']);
+    $routes->get('download', 'Student\DashboardController::download', ['filter' => 'student_auth']);
+    $routes->post('deleteFile', 'Student\DashboardController::deleteFile', ['filter' => 'student_auth']);
 });
 
 // 管理員端
