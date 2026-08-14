@@ -60,11 +60,8 @@ Vagrantfile
 /writable/session/*
 !/writable/session/index.html
 
-/writable/uploads/*
-!/writable/uploads/resumes/
-!/writable/uploads/resumes/*.pdf
-!/writable/uploads/resumes/*.docx
-!/writable/uploads/index.html
+# /writable/uploads/*
+# !/writable/uploads/index.html
 
 /writable/debugbar/*
 !/writable/debugbar/index.html
