@@ -1,0 +1,4 @@
+cd "D:\常用_python工具\CAC_PROJECT\0813\resume-submission-system\resume-submission-system"
+& "D:\php-8.3.33-nts-Win32-vs16-x64\php.exe" spark serve --port 8080
+
+http://localhost:8080/index.php/
