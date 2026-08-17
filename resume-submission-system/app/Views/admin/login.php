@@ -4,7 +4,16 @@
 <meta charset="UTF-8">
 <title>管理員登入</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
 input, button { margin: 3px; padding: 3px; }
 </style>
 </head>
@@ -31,5 +40,6 @@ input, button { margin: 3px; padding: 3px; }
 
 <br>
 <a href="/AdminController/register">註冊管理員帳號</a>
+<a href="javascript:history.back()" class="btn btn-secondary" style="margin-left:10px;">返回上一頁</a>
 </body>
 </html>

@@ -4,7 +4,16 @@
 <meta charset="UTF-8">
 <title>管理員頁面</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+}
 table { border-collapse: collapse; }
 th, td { border: 1px solid black; padding: 5px; }
 input, button { margin: 3px; padding: 3px; }
