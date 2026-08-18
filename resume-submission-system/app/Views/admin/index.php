@@ -1,91 +1,119 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>申請資料管理</title>
-<link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>履歷繳交資料管理 - 甄選行政系統</title>
+    <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 </head>
 <body>
-<main class="admin-shell">
-<header class="admin-header">
-<div>
-<p class="admin-kicker">甄選會管理系統</p>
-<h1>申請資料管理</h1>
-<p class="admin-lead">查詢申請者、確認履歷繳交狀態，或進入詳細頁檢視上傳內容。</p>
-</div>
-<a class="button button--secondary" href="/AdminController/logout">登出</a>
+
+<header class="sys-navbar">
+    <div class="sys-navbar__inner">
+        <div class="sys-navbar__brand">
+            <h1 class="sys-navbar__title">甄選行政管理系統</h1>
+            <span class="sys-navbar__badge">管理端</span>
+        </div>
+        <div class="sys-navbar__user">
+            <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
+        </div>
+    </div>
 </header>
 
-<section class="toolbar" aria-label="申請資料搜尋">
-<form class="search-form" action="/AdminController/search" method="GET">
-<div class="search-field">
-<label for="search_by">搜尋欄位</label>
-<select id="search_by" name="search_by">
-    <option value="name" <?= (!isset($search_by) || $search_by === 'name') ? 'selected' : '' ?>>使用者姓名</option>
-    <option value="id" <?= (isset($search_by) && $search_by === 'id') ? 'selected' : '' ?>>使用者 ID</option>
-    <option value="email" <?= (isset($search_by) && $search_by === 'email') ? 'selected' : '' ?>>Email</option>
-</select>
-</div>
-<div class="search-field">
-<label for="keyword">搜尋關鍵字</label>
-<input id="keyword" type="search" name="keyword" value="<?= isset($keyword) ? esc($keyword) : '' ?>" placeholder="輸入姓名、使用者 ID 或 Email">
-</div>
-<button class="button" type="submit">搜尋資料</button>
-</form>
-</section>
+<main class="admin-shell">
+    <div class="page-header">
+        <h2 class="page-header__title">履歷繳交資料管理</h2>
+    </div>
 
-<section aria-labelledby="results-title">
-<div class="results-summary">
-<h2 id="results-title"><?= isset($keyword) && $keyword !== '' ? '搜尋結果' : '全部申請資料' ?></h2>
-<p class="results-count">共 <?= count($users ?? []) ?> 筆資料</p>
-</div>
+    <!-- 搜尋區塊 -->
+    <section class="search-box" aria-label="資料搜尋">
+        <form class="search-box__form" action="/AdminController/search" method="GET">
+            <div class="search-group search-group--select">
+                <label for="search_by">搜尋欄位</label>
+                <select id="search_by" name="search_by">
+                    <option value="name" <?= (!isset($search_by) || $search_by === 'name') ? 'selected' : '' ?>>使用者姓名</option>
+                    <option value="id" <?= (isset($search_by) && $search_by === 'id') ? 'selected' : '' ?>>使用者 ID</option>
+                    <option value="email" <?= (isset($search_by) && $search_by === 'email') ? 'selected' : '' ?>>Email</option>
+                </select>
+            </div>
 
-<div class="table-wrap">
-<table class="data-table">
-<thead>
-<tr>
-<th>使用者 ID</th>
-<th>使用者姓名</th>
-<th>Email</th>
-<th>履歷檔案</th>
-<th>上傳時間</th>
-<th>操作</th>
-</tr>
-</thead>
-<tbody>
-<?php if (!empty($users)): ?>
-<?php foreach ($users as $user): ?>
-<tr>
-<td class="cell-primary" data-label="使用者 ID"><?= esc($user['student_id']) ?></td>
-<td data-label="姓名"><?= esc($user['name']) ?></td>
-<td class="cell-secondary" data-label="Email"><?= esc($user['email']) ?></td>
-<td class="file-name" data-label="履歷檔案">
-<?php if (!empty($user['file_name'])): ?>
-<span class="status">已上傳</span><br><?= esc($user['file_name']) ?>
-<?php else: ?>
-<span class="status status--muted">尚未上傳</span>
-<?php endif; ?>
-</td>
-<td class="cell-secondary" data-label="上傳時間"><?= !empty($user['uploaded_at']) ? esc($user['uploaded_at']) : '尚無紀錄' ?></td>
-<td class="row-actions-cell" data-label="操作">
-<div class="row-actions">
-<a class="button button--small" href="/AdminController/show/<?= $user['id'] ?>">查看</a>
-<?php if (!empty($user['file_name'])): ?>
-<a class="button button--small button--secondary" href="/AdminController/download/<?= $user['id'] ?>">下載</a>
-<?php endif; ?>
-</div>
-</td>
-</tr>
-<?php endforeach; ?>
-<?php else: ?>
-<tr><td class="empty-state" colspan="6">查無符合條件的申請資料。請調整搜尋欄位或關鍵字後再試一次。</td></tr>
-<?php endif; ?>
-</tbody>
-</table>
-</div>
-</section>
+            <div class="search-group search-group--input">
+                <label for="keyword">關鍵字</label>
+                <input id="keyword" type="search" name="keyword" value="<?= isset($keyword) ? esc($keyword) : '' ?>" placeholder="請輸入姓名、ID 或 Email">
+            </div>
 
+            <div class="search-actions">
+                <button class="btn btn--primary" type="submit">搜尋</button>
+                <?php if (isset($keyword) && $keyword !== ''): ?>
+                    <a class="btn btn--secondary" href="/AdminController">清除搜尋</a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </section>
+
+    <!-- 資料表格區塊 -->
+    <section aria-label="資料清單">
+        <div class="table-meta">
+            <span>
+                <?php if (isset($keyword) && $keyword !== ''): ?>
+                    搜尋條件：<strong><?= esc($keyword) ?></strong>（
+                    <?= ($search_by === 'id') ? '使用者 ID' : (($search_by === 'email') ? 'Email' : '使用者姓名') ?>
+                    ）
+                <?php else: ?>
+                    資料狀態：全部清單
+                <?php endif; ?>
+            </span>
+            <span class="table-meta__count">共 <?= count($users ?? []) ?> 筆資料</span>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">使用者 ID</th>
+                        <th style="width: 130px;">使用者姓名</th>
+                        <th>Email</th>
+                        <th style="width: 260px;">履歷檔案</th>
+                        <th style="width: 160px;">上傳時間</th>
+                        <th style="width: 130px; text-align: center;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($users)): ?>
+                        <?php foreach ($users as $user): ?>
+                            <tr>
+                                <td class="col-id" data-label="使用者 ID"><?= esc($user['student_id']) ?></td>
+                                <td class="col-name" data-label="使用者姓名"><?= esc($user['name']) ?></td>
+                                <td class="col-email" data-label="Email"><?= esc($user['email']) ?></td>
+                                <td class="col-file" data-label="履歷檔案">
+                                    <?php if (!empty($user['file_name'])): ?>
+                                        <span class="tag-status tag-status--success">已上傳</span>
+                                        <span class="file-name-text"><?= esc($user['file_name']) ?></span>
+                                    <?php else: ?>
+                                        <span class="tag-status tag-status--muted">尚未上傳</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="col-time" data-label="上傳時間"><?= !empty($user['uploaded_at']) ? esc($user['uploaded_at']) : '尚無紀錄' ?></td>
+                                <td class="col-actions" data-label="操作">
+                                    <div class="table-actions">
+                                        <a class="btn btn--secondary btn--sm" href="/AdminController/show/<?= $user['id'] ?>">查看</a>
+                                        <?php if (!empty($user['file_name'])): ?>
+                                            <a class="btn btn--primary btn--sm" href="/AdminController/download/<?= $user['id'] ?>">下載</a>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td class="table-empty" colspan="6">查無符合條件之資料。請調整搜尋條件後重試。</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </main>
+
 </body>
 </html>
