@@ -54,7 +54,7 @@ class AdminController extends BaseController
         $model->save([
             'username'    => $username,
             'email'       => $email,
-            'password'    => $password,
+            'password'    => password_hash($password, PASSWORD_DEFAULT),
             'employee_id' => $employeeId,
         ]);
 
@@ -69,7 +69,7 @@ class AdminController extends BaseController
         $model = new AdminModel();
         $admin = $model->findByUsername($username);
 
-        if ($admin && $password === $admin['password']) {
+        if ($admin && password_verify($password, $admin['password'])) {
             session()->set('admin_logged_in', true);
             session()->set('admin_id', $admin['admin_id']);
             return redirect()->to('/AdminController');
