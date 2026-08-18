@@ -21,7 +21,7 @@ class UserModel extends Model
 
     public function searchByUserId($student_id)
     {
-        return $this->where('student_id', $student_id)->findAll();
+        return $this->like('student_id', $student_id)->findAll();
     }
 
     public function searchByName($name)

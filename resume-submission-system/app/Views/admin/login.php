@@ -11,7 +11,7 @@
 <main class="admin-shell admin-shell--narrow">
     <div class="auth-box">
         <div class="auth-header">
-            <p class="auth-header__sub">甄選行政管理系統</p>
+            <p class="auth-header__sub">管理員系統</p>
             <h1 class="auth-header__title">管理員登入</h1>
         </div>
 

@@ -11,8 +11,7 @@
 <header class="sys-navbar">
     <div class="sys-navbar__inner">
         <div class="sys-navbar__brand">
-            <h1 class="sys-navbar__title">甄選行政管理系統</h1>
-            <span class="sys-navbar__badge">管理端</span>
+            <h1 class="sys-navbar__title">管理員系統</h1>
         </div>
         <div class="sys-navbar__user">
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
