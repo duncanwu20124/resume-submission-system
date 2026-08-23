@@ -282,7 +282,7 @@
     <main>
         <div class="hero-container">
             <h1 class="hero-title">歡迎使用履歷上傳與管理系統</h1>
-            <p class="hero-subtitle">請選擇您的身分存取系統功能。學生可上傳與管理履歷檔案；教授可檢閱與下載審核。</p>
+            <p class="hero-subtitle">請選擇您的身分存取系統功能。學生可上傳與管理履歷檔案；管理員可檢閱與下載審核。</p>
 
 
             <!-- 繳交資訊：日期可依實際時程修改 -->
@@ -334,17 +334,17 @@
                     </a>
                 </div>
 
-                <!-- 教授登入區塊 -->
+                <!-- 管理員登入區塊 -->
                 <div class="portal-card">
                     <div class="card-icon professor-icon">
                         <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
                         </svg>
                     </div>
-                    <h2 class="card-title">教授入口 (Professor Portal)</h2>
-                    <p class="card-desc">教授可登入系統檢視各學生所提交之履歷檔案，並進行搜尋與下載作業。</p>
+                    <h2 class="card-title">管理員入口 (Admin Portal)</h2>
+                    <p class="card-desc">管理員可登入系統檢視各學生所提交之履歷檔案，並進行搜尋與下載作業。</p>
                     <a href="<?= site_url('AdminController/login') ?>" class="btn btn-primary" style="background-color: #16a34a; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
-                        進入教授登入
+                        進入管理員登入
                         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>

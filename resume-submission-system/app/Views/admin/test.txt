@@ -1,4 +1,9 @@
-cd "D:\常用_python工具\CAC_PROJECT\0813\resume-submission-system\resume-submission-system"
-& "D:\php-8.3.33-nts-Win32-vs16-x64\php.exe" spark serve --port 8080
+cd d:\usefull_python_tool\CAC_PROJECT\0813\resume-submission-system\resume-submission-system
+php -S localhost:8080 -t public
 
 http://localhost:8080/index.php/
+
+
+cd ~/Desktop/AILab_Drives/resume-submission-system/resume-submission-system
+composer install
+php spark serve --port 8080

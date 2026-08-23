@@ -1,35 +1,48 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>管理員登入</title>
-<style>
-body { font-family: Arial, sans-serif; margin: 20px; }
-input, button { margin: 3px; padding: 3px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理員登入 - 甄選行政系統</title>
+    <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 </head>
 <body>
-<h1>管理員登入</h1>
 
-<?php if (session()->getFlashdata('success')): ?>
-<p style="color:green;"><?= session()->getFlashdata('success') ?></p>
-<?php endif; ?>
+<main class="admin-shell admin-shell--narrow">
+    <div class="auth-box">
+        <div class="auth-header">
+            <p class="auth-header__sub">管理員系統</p>
+            <h1 class="auth-header__title">管理員登入</h1>
+        </div>
 
-<?php if (!empty($error)): ?>
-<p style="color:red;"><?= $error ?></p>
-<?php endif; ?>
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert--success" role="status"><?= esc(session()->getFlashdata('success')) ?></div>
+        <?php endif; ?>
 
-<form action="/AdminController/doLogin" method="POST">
-<label>帳號：<br>
-<input type="text" name="username">
-</label><br><br>
-<label>密碼：<br>
-<input type="password" name="password">
-</label><br><br>
-<button type="submit">登入</button>
-</form>
+        <?php if (!empty($error)): ?>
+            <div class="alert alert--error" role="alert"><?= esc($error) ?></div>
+        <?php endif; ?>
 
-<br>
-<a href="/AdminController/register">註冊管理員帳號</a>
+        <form action="/AdminController/doLogin" method="POST">
+            <div class="form-field">
+                <label for="username">管理員帳號</label>
+                <input id="username" type="text" name="username" autocomplete="username" required autofocus>
+            </div>
+
+            <div class="form-field">
+                <label for="password">密碼</label>
+                <input id="password" type="password" name="password" autocomplete="current-password" required>
+            </div>
+
+            <button class="btn btn--primary btn--block" type="submit" style="margin-top: 8px;">登入系統</button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="/AdminController/register">註冊管理員帳號</a>
+            <a href="<?= site_url('/') ?>">返回系統首頁</a>
+        </div>
+    </div>
+</main>
+
 </body>
 </html>
