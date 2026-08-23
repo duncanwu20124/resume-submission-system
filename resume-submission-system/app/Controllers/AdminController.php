@@ -147,23 +147,33 @@ class AdminController extends BaseController
             return;
         }
 
-        $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
+        $content = null;
+        if (!empty($user['file_content'])) {
+            $content = base64_decode($user['file_content']);
+        } else {
+            $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
+            if (file_exists($filePath) && is_file($filePath)) {
+                $content = file_get_contents($filePath);
+            }
+        }
 
-        if (!file_exists($filePath)) {
+        if ($content === null) {
             echo '找不到指定檔案';
             return;
         }
 
-        $mimeType = 'application/octet-stream';
-        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        if ($ext === 'pdf') {
-            $mimeType = 'application/pdf';
-        }
+        $ext = strtolower(pathinfo($user['file_name'], PATHINFO_EXTENSION));
+        $mimeType = match ($ext) {
+            'pdf'   => 'application/pdf',
+            'doc'   => 'application/msword',
+            'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            default => 'application/octet-stream',
+        };
 
         return $this->response
             ->setHeader('Content-Type', $mimeType)
             ->setHeader('Content-Disposition', 'inline; filename="' . $user['file_name'] . '"')
-            ->setBody(file_get_contents($filePath));
+            ->setBody($content);
     }
 
     public function download($user_id)
@@ -180,14 +190,17 @@ class AdminController extends BaseController
             return;
         }
 
-        $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
-
-        if (!file_exists($filePath)) {
-            echo '找不到指定檔案';
-            return;
+        if (!empty($user['file_content'])) {
+            return $this->response->download($user['file_name'], base64_decode($user['file_content']));
         }
 
-        return $this->response->download($filePath, null)->setFileName($user['file_name']);
+        $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
+        if (file_exists($filePath) && is_file($filePath)) {
+            return $this->response->download($filePath, null)->setFileName($user['file_name']);
+        }
+
+        echo '找不到指定檔案';
+        return;
     }
 
     public function logout()
