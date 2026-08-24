@@ -130,3 +130,5 @@ _modules/*
 /phpunit.xml
 
 /.php-cs-fixer.php
+
+*.sqlite

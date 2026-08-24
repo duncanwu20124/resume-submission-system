@@ -29,15 +29,13 @@ class DashboardController extends BaseController
         $files    = [];
 
         if (!empty($student['file_name'])) {
-            $relativePath = 'writable/uploads/' . $student['file_name'];
-            $fullPath     = WRITEPATH . 'uploads/' . $student['file_name'];
-            $fileExists   = file_exists($fullPath) && is_file($fullPath);
-            $fileSize     = $fileExists ? $this->formatBytes(filesize($fullPath)) : '未知';
+            $fileExists   = !empty($student['file_content']);
+            $fileSize     = $fileExists ? $this->formatBytes(strlen(base64_decode($student['file_content']))) : '未知';
             $ext          = strtolower(pathinfo($student['file_name'], PATHINFO_EXTENSION));
 
             $fileData = [
                 'name'          => $student['file_name'],
-                'relative_path' => $relativePath,
+                'relative_path' => '資料庫儲存',
                 'size'          => $fileSize,
                 'uploaded_at'   => $student['uploaded_at'],
                 'is_pdf'        => ($ext === 'pdf'),
@@ -109,13 +107,17 @@ class DashboardController extends BaseController
         $randomSuffix    = bin2hex(random_bytes(4));
         $newFileName     = "{$cleanStudentId}_" . date('Ymd_His') . "_{$randomSuffix}.{$ext}";
 
-        // Move the file to relative directory writable/uploads/
-        $file->move($uploadDir, $newFileName);
+        // Base64-encode before storage: CodeIgniter's SQLite3 driver interpolates
+        // escaped values directly into the SQL text rather than binding a true
+        // blob parameter, so raw binary containing NUL bytes gets truncated by
+        // SQLite's string-literal parsing. Encoding avoids NUL bytes entirely.
+        $fileContent     = base64_encode(file_get_contents($file->getTempName()));
 
         // Update database record
         $studentModel->update($studentDbId, [
-            'file_name'   => $newFileName,
-            'uploaded_at' => date('Y-m-d H:i:s'),
+            'file_name'    => $newFileName,
+            'file_content' => $fileContent,
+            'uploaded_at'  => date('Y-m-d H:i:s'),
         ]);
 
         return redirect()->to('/student/dashboard')->with('success', '履歷檔案上傳成功！');
@@ -127,17 +129,11 @@ class DashboardController extends BaseController
         $studentDbId  = session()->get('student_db_id');
         $student      = $studentModel->find($studentDbId);
 
-        if (!$student || empty($student['file_name'])) {
+        if (!$student || empty($student['file_name']) || empty($student['file_content'])) {
             return redirect()->to('/student/dashboard')->with('error', '目前尚無上傳任何檔案。');
         }
 
-        $filePath = WRITEPATH . 'uploads/' . $student['file_name'];
-
-        if (!file_exists($filePath) || !is_file($filePath)) {
-            return redirect()->to('/student/dashboard')->with('error', '找不到指定檔案，請重新上傳。');
-        }
-
-        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $ext = strtolower(pathinfo($student['file_name'], PATHINFO_EXTENSION));
         $mimeType = match ($ext) {
             'pdf'   => 'application/pdf',
             'doc'   => 'application/msword',
@@ -148,7 +144,7 @@ class DashboardController extends BaseController
         return $this->response
             ->setHeader('Content-Type', $mimeType)
             ->setHeader('Content-Disposition', 'inline; filename="' . $student['file_name'] . '"')
-            ->setBody(file_get_contents($filePath));
+            ->setBody(base64_decode($student['file_content']));
     }
 
     public function download()
@@ -157,17 +153,11 @@ class DashboardController extends BaseController
         $studentDbId  = session()->get('student_db_id');
         $student      = $studentModel->find($studentDbId);
 
-        if (!$student || empty($student['file_name'])) {
+        if (!$student || empty($student['file_name']) || empty($student['file_content'])) {
             return redirect()->to('/student/dashboard')->with('error', '目前尚無上傳任何檔案可供下載。');
         }
 
-        $filePath = WRITEPATH . 'uploads/' . $student['file_name'];
-
-        if (!file_exists($filePath) || !is_file($filePath)) {
-            return redirect()->to('/student/dashboard')->with('error', '找不到指定檔案或檔案已被移除。');
-        }
-
-        return $this->response->download($filePath, null)->setFileName($student['file_name']);
+        return $this->response->download($student['file_name'], base64_decode($student['file_content']));
     }
 
     public function deleteFile()
@@ -183,8 +173,9 @@ class DashboardController extends BaseController
             }
 
             $studentModel->update($studentDbId, [
-                'file_name'   => null,
-                'uploaded_at' => null,
+                'file_name'    => null,
+                'file_content' => null,
+                'uploaded_at'  => null,
             ]);
         }
 
