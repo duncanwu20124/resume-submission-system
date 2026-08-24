@@ -13,7 +13,7 @@ class AdminModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['username', 'password', 'email', 'employee_id'];
+    protected $allowedFields    = ['username', 'password', 'email', 'employee_id', 'reset_token', 'reset_expires_at'];
 
     protected $useTimestamps = false;
 

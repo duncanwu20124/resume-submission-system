@@ -28,4 +28,8 @@ $routes->get('AdminController/search', 'AdminController::search');
 $routes->get('AdminController/show/(:num)', 'AdminController::show/$1');
 $routes->get('AdminController/viewFile/(:num)', 'AdminController::viewFile/$1');
 $routes->get('AdminController/download/(:num)', 'AdminController::download/$1');
+$routes->get('AdminController/forgotPassword', 'AdminController::forgotPassword');
+$routes->post('AdminController/sendResetLink', 'AdminController::sendResetLink');
+$routes->get('AdminController/resetPassword', 'AdminController::resetPassword');
+$routes->post('AdminController/doResetPassword', 'AdminController::doResetPassword');
 $routes->get('AdminController/logout', 'AdminController::logout');

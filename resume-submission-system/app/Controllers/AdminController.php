@@ -182,12 +182,144 @@ class AdminController extends BaseController
 
         $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
 
-        if (!file_exists($filePath)) {
-            echo '找不到指定檔案';
-            return;
+        return $this->response->download($filePath, null)->setFileName($user['file_name']);
+    }
+
+    public function forgotPassword()
+    {
+        return view('admin/forgot_password');
+    }
+
+    public function sendResetLink()
+    {
+        $email      = trim($this->request->getVar('email'));
+        $employeeId = trim($this->request->getVar('employee_id'));
+
+        if (empty($email) || empty($employeeId)) {
+            return view('admin/forgot_password', [
+                'error' => '請輸入電子郵件與員工證號。',
+                'old'   => ['email' => $email, 'employee_id' => $employeeId]
+            ]);
         }
 
-        return $this->response->download($filePath, null)->setFileName($user['file_name']);
+        if (!preg_match('/^admin\d{2}$/', $employeeId)) {
+            return view('admin/forgot_password', [
+                'error' => '員工證錯誤。必須是 admin01 或 admin 後面接兩個數字。',
+                'old'   => ['email' => $email, 'employee_id' => $employeeId]
+            ]);
+        }
+
+        $model = new AdminModel();
+        $admin = $model->where('email', $email)
+                       ->where('employee_id', $employeeId)
+                       ->first();
+
+        if (!$admin) {
+            return view('admin/forgot_password', [
+                'error' => '驗證失敗：找不到此 Email 與員工證號對應的管理員。',
+                'old'   => ['email' => $email, 'employee_id' => $employeeId]
+            ]);
+        }
+
+        // 生成唯一 token (30 分鐘有效)
+        $token = bin2hex(random_bytes(32));
+        $expiresAt = date('Y-m-d H:i:s', time() + 1800);
+
+        $model->update($admin['admin_id'], [
+            'reset_token'      => $token,
+            'reset_expires_at' => $expiresAt,
+        ]);
+
+        $resetUrl = site_url('AdminController/resetPassword?token=' . $token);
+
+        // 嘗試使用 CodeIgniter Email 服務發送信件
+        $emailService = \Config\Services::email();
+        $emailConfig = config('Email');
+
+        $mailSent = false;
+        // 如果 SMTPHost 已設定則嘗試發送真實郵件
+        if (!empty($emailConfig->SMTPHost) || !empty($emailConfig->fromEmail)) {
+            try {
+                $emailService->setTo($email);
+                $emailService->setSubject('【甄選行政系統】管理員密碼重設通知');
+                $emailService->setMessage(
+                    "您好，\n\n您最近請求了重設管理員帳號密碼。\n請點擊以下連結進行重設（30分鐘內有效）：\n\n" .
+                    $resetUrl . "\n\n若非您本人操作，請忽略此郵件。"
+                );
+                $mailSent = $emailService->send();
+            } catch (\Exception $e) {
+                log_message('error', 'Email reset sending failed: ' . $e->getMessage());
+            }
+        }
+
+        if ($mailSent) {
+            return redirect()->to('/AdminController/forgotPassword')->with('success', '密碼重設信件已成功寄出至 ' . esc($email) . '，請前往收信。');
+        } else {
+            // 本地測試或尚未設定 SMTP 時，提供提示並帶有模擬連結
+            session()->setFlashdata('dev_reset_link', $resetUrl);
+            return redirect()->to('/AdminController/forgotPassword')->with('success', '重設驗證已生成！（若已設定 SMTP 系統將直接寄至 Gmail；本地開發可直接點擊下方模擬連結）');
+        }
+    }
+
+    public function resetPassword()
+    {
+        $token = $this->request->getVar('token');
+
+        if (empty($token)) {
+            return redirect()->to('/AdminController/login')->with('error', '無效的重設連結。');
+        }
+
+        $model = new AdminModel();
+        $admin = $model->where('reset_token', $token)
+                       ->where('reset_expires_at >=', date('Y-m-d H:i:s'))
+                       ->first();
+
+        if (!$admin) {
+            return redirect()->to('/AdminController/forgotPassword')->with('error', '密碼重設連結已失效或過期，請重新申請。');
+        }
+
+        return view('admin/reset_password', ['token' => $token]);
+    }
+
+    public function doResetPassword()
+    {
+        $token           = $this->request->getVar('token');
+        $password        = $this->request->getVar('password');
+        $passwordConfirm = $this->request->getVar('password_confirm');
+
+        if (empty($token)) {
+            return redirect()->to('/AdminController/login')->with('error', '無效的請求。');
+        }
+
+        $model = new AdminModel();
+        $admin = $model->where('reset_token', $token)
+                       ->where('reset_expires_at >=', date('Y-m-d H:i:s'))
+                       ->first();
+
+        if (!$admin) {
+            return redirect()->to('/AdminController/forgotPassword')->with('error', '密碼重設連結已失效或過期，請重新申請。');
+        }
+
+        if (empty($password) || empty($passwordConfirm)) {
+            return view('admin/reset_password', ['token' => $token, 'error' => '請輸入新密碼與確認密碼。']);
+        }
+
+        if (strlen($password) < 6) {
+            return view('admin/reset_password', ['token' => $token, 'error' => '密碼長度至少需為 6 個字元。']);
+        }
+
+        if ($password !== $passwordConfirm) {
+            return view('admin/reset_password', ['token' => $token, 'error' => '兩次輸入的密碼不一致。']);
+        }
+
+        // 更新密碼並清除 token
+        $model->update($admin['admin_id'], [
+            'password'         => password_hash($password, PASSWORD_DEFAULT),
+            'reset_token'      => null,
+            'reset_expires_at' => null,
+        ]);
+
+        return redirect()->to('/AdminController/login')->with('success', '密碼重設成功，請使用新密碼登入。');
     }
 
     public function logout()
