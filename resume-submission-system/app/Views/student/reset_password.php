@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學生登入 | 學生履歷繳交系統</title>
+    <title>重設密碼 | 學生履歷繳交系統</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -190,12 +190,12 @@
 </head>
 <body>
     <div class="auth-card">
-        <a href="<?= site_url('/') ?>" class="back-link">&larr; 返回系統入口頁</a>
+        <a href="<?= site_url('student/forgot-password') ?>" class="back-link">&larr; 返回上一步</a>
 
         <div class="auth-header">
-            <span class="badge">Student Portal</span>
-            <h1 class="auth-title">學生登入</h1>
-            <p class="auth-subtitle">請輸入您的學號與密碼以登入系統</p>
+            <span class="badge">Set Password</span>
+            <h1 class="auth-title">重設密碼</h1>
+            <p class="auth-subtitle">驗證成功！請輸入您的新密碼。</p>
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
@@ -212,34 +212,27 @@
             </div>
         <?php endif; ?>
 
-        <form action="<?= site_url('student/login') ?>" method="post">
+        <form action="<?= site_url('student/reset-password') ?>" method="post">
             <?= csrf_field() ?>
 
             <div class="form-group">
-                <label for="student_id">學號 (Student ID)</label>
-                <input type="text" id="student_id" name="student_id" value="<?= old('student_id') ?>" placeholder="例如：S112001" required autofocus>
-                <?php if (isset($validation) && $validation->hasError('student_id')): ?>
-                    <div class="error-text"><?= $validation->getError('student_id') ?></div>
+                <label for="password">新密碼 (New Password)</label>
+                <input type="password" id="password" name="password" placeholder="密碼需至少 6 個字元" required autofocus>
+                <?php if (isset($validation) && $validation->hasError('password')): ?>
+                    <div class="error-text"><?= $validation->getError('password') ?></div>
                 <?php endif; ?>
             </div>
 
             <div class="form-group">
-                <label for="password">密碼 (Password)</label>
-                <input type="password" id="password" name="password" placeholder="請輸入密碼" required>
-                <?php if (isset($validation) && $validation->hasError('password')): ?>
-                    <div class="error-text"><?= $validation->getError('password') ?></div>
+                <label for="password_confirm">確認新密碼 (Confirm Password)</label>
+                <input type="password" id="password_confirm" name="password_confirm" placeholder="請再次輸入新密碼" required>
+                <?php if (isset($validation) && $validation->hasError('password_confirm')): ?>
+                    <div class="error-text"><?= $validation->getError('password_confirm') ?></div>
                 <?php endif; ?>
-                <div style="text-align: right; margin-top: 0.5rem;">
-                    <a href="<?= site_url('student/forgot-password') ?>" style="font-size: 0.85rem; color: var(--primary); text-decoration: none;">忘記密碼？</a>
-                </div>
             </div>
 
-            <button type="submit" class="btn-submit">登入 Student Portal</button>
+            <button type="submit" class="btn-submit">重設密碼</button>
         </form>
-
-        <div class="auth-footer">
-            還沒有學號帳號？ <a href="<?= site_url('student/register') ?>">立即創建帳號 (Register)</a>
-        </div>
     </div>
 </body>
 </html>

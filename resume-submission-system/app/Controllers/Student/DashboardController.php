@@ -61,12 +61,12 @@ class DashboardController extends BaseController
                 'rules'  => [
                     'uploaded[resume]',
                     'max_size[resume,3072]',
-                    'ext_in[resume,pdf,doc,docx]',
+                    'ext_in[resume,pdf]',
                 ],
                 'errors' => [
                     'uploaded' => '請選擇要上傳的履歷檔案。',
                     'max_size' => '檔案大小不能超過 3MB。',
-                    'ext_in'   => '僅允許上傳 PDF、DOC 或 DOCX 格式的檔案。',
+                    'ext_in'   => '僅允許上傳 PDF 格式的檔案。',
                 ],
             ],
         ];
@@ -84,9 +84,6 @@ class DashboardController extends BaseController
         }
 
         $uploadDir = WRITEPATH . 'uploads/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
 
         $studentModel = new StudentModel();
         $studentDbId  = session()->get('student_db_id');
