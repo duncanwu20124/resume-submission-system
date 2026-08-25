@@ -19,26 +19,23 @@
             <div class="alert alert--success" role="status"><?= esc(session()->getFlashdata('success')) ?></div>
         <?php endif; ?>
 
-        <?php if (session()->getFlashdata('dev_reset_link')): ?>
-            <div class="alert alert--info" style="word-break: break-all; margin-top: 10px; font-size: 0.85rem; background: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 6px;">
-                <strong>[本地測試模擬郵件]</strong><br>
-                重設密碼連結：<br>
-                <a href="<?= session()->getFlashdata('dev_reset_link') ?>"><?= session()->getFlashdata('dev_reset_link') ?></a>
-            </div>
-        <?php endif; ?>
-
         <?php if (!empty($error)): ?>
             <div class="alert alert--error" role="alert"><?= esc($error) ?></div>
         <?php endif; ?>
 
         <p style="color: var(--text-muted, #64748b); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5;">
-            請輸入您註冊管理員時填寫的電子郵件與員工證號，驗證身分後系統將發送重設密碼信件給您。
+            請輸入您註冊管理員時填寫的姓名、電子郵件與員工證號，驗證身分後系統將發送重設密碼信件給您。
         </p>
 
         <form action="/AdminController/sendResetLink" method="POST">
             <div class="form-field">
+                <label for="name">管理員姓名</label>
+                <input id="name" type="text" name="name" value="<?= esc($old['name'] ?? '') ?>" required autofocus placeholder="請輸入管理員姓名">
+            </div>
+
+            <div class="form-field">
                 <label for="email">管理員電子郵件 (Email)</label>
-                <input id="email" type="email" name="email" value="<?= esc($old['email'] ?? '') ?>" required autofocus placeholder="example@gmail.com">
+                <input id="email" type="email" name="email" value="<?= esc($old['email'] ?? '') ?>" required placeholder="example@gmail.com">
             </div>
 
             <div class="form-field">
