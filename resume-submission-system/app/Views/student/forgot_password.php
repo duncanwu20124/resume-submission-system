@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學生登入 | 學生履歷繳交系統</title>
+    <title>忘記密碼 | 學生履歷繳交系統</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -190,12 +190,12 @@
 </head>
 <body>
     <div class="auth-card">
-        <a href="<?= site_url('/') ?>" class="back-link">&larr; 返回系統入口頁</a>
+        <a href="<?= site_url('student/login') ?>" class="back-link">&larr; 返回登入頁</a>
 
         <div class="auth-header">
-            <span class="badge">Student Portal</span>
-            <h1 class="auth-title">學生登入</h1>
-            <p class="auth-subtitle">請輸入您的學號與密碼以登入系統</p>
+            <span class="badge">Password Reset</span>
+            <h1 class="auth-title">忘記密碼</h1>
+            <p class="auth-subtitle">請輸入您註冊的電子郵件，系統將寄送驗證碼給您。</p>
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
@@ -212,34 +212,38 @@
             </div>
         <?php endif; ?>
 
-        <form action="<?= site_url('student/login') ?>" method="post">
+        <form action="<?= site_url('student/forgot-password') ?>" method="post" id="forgotPasswordForm">
             <?= csrf_field() ?>
 
             <div class="form-group">
-                <label for="student_id">學號 (Student ID)</label>
-                <input type="text" id="student_id" name="student_id" value="<?= old('student_id') ?>" placeholder="例如：S112001" required autofocus>
-                <?php if (isset($validation) && $validation->hasError('student_id')): ?>
-                    <div class="error-text"><?= $validation->getError('student_id') ?></div>
+                <label for="email">電子郵件 (Email)</label>
+                <input type="email" id="email" name="email" placeholder="請輸入註冊時的電子郵件" required autofocus>
+                <?php if (isset($error)): ?>
+                    <div class="error-text"><?= $error ?></div>
                 <?php endif; ?>
             </div>
 
-            <div class="form-group">
-                <label for="password">密碼 (Password)</label>
-                <input type="password" id="password" name="password" placeholder="請輸入密碼" required>
-                <?php if (isset($validation) && $validation->hasError('password')): ?>
-                    <div class="error-text"><?= $validation->getError('password') ?></div>
-                <?php endif; ?>
-                <div style="text-align: right; margin-top: 0.5rem;">
-                    <a href="<?= site_url('student/forgot-password') ?>" style="font-size: 0.85rem; color: var(--primary); text-decoration: none;">忘記密碼？</a>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-submit">登入 Student Portal</button>
+            <button type="submit" class="btn-submit" id="forgotPasswordSubmit">發送驗證碼</button>
         </form>
 
         <div class="auth-footer">
-            還沒有學號帳號？ <a href="<?= site_url('student/register') ?>">立即創建帳號 (Register)</a>
+            想起來了？ <a href="<?= site_url('student/login') ?>">返回登入</a>
         </div>
     </div>
+
+    <script>
+        // 防止重複點擊送出：快速點兩下會各自產生不同的驗證碼，
+        // 導致畫面顯示的驗證碼與資料庫最終保存的驗證碼不一致而驗證失敗。
+        document.getElementById('forgotPasswordForm').addEventListener('submit', function (e) {
+            var btn = document.getElementById('forgotPasswordSubmit');
+            if (btn.dataset.submitted === 'true') {
+                e.preventDefault();
+                return;
+            }
+            btn.dataset.submitted = 'true';
+            btn.disabled = true;
+            btn.textContent = '發送中...';
+        });
+    </script>
 </body>
 </html>

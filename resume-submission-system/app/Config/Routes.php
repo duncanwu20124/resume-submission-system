@@ -11,6 +11,12 @@ $routes->group('student', function ($routes) {
     $routes->get('register', 'Student\AuthController::register');
     $routes->post('register', 'Student\AuthController::processRegister');
     $routes->get('logout', 'Student\AuthController::logout');
+    $routes->get('forgot-password', 'Student\AuthController::forgotPassword');
+    $routes->post('forgot-password', 'Student\AuthController::sendResetCode');
+    $routes->get('verify-code', 'Student\AuthController::verifyCode');
+    $routes->post('verify-code', 'Student\AuthController::processVerifyCode');
+    $routes->get('reset-password', 'Student\AuthController::resetPassword');
+    $routes->post('reset-password', 'Student\AuthController::processResetPassword');
     $routes->get('dashboard', 'Student\DashboardController::index', ['filter' => 'student_auth']);
     $routes->post('upload', 'Student\DashboardController::upload', ['filter' => 'student_auth']);
     $routes->get('viewFile', 'Student\DashboardController::viewFile', ['filter' => 'student_auth']);

@@ -654,7 +654,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                         </svg>
                         <div class="empty-text">目前尚無上傳任何履歷檔案</div>
-                        <div class="empty-subtext">請使用下方上傳區域上傳您的 PDF 或 Word 格式履歷（單檔大小限制 3MB 以內）。</div>
+                        <div class="empty-subtext">請使用下方上傳區域上傳您的 PDF 格式履歷（單檔大小限制 3MB 以內）。</div>
                     </div>
                 <?php else: ?>
                     <div class="file-table-container">
@@ -736,24 +736,22 @@
                     </h2>
                 </div>
 
-                <p class="upload-section-desc">
-                    支援 PDF, DOC, DOCX 格式，檔案大小限制 3MB 以內。檔案將以本地資料夾相對路徑 (<code>writable/uploads/</code>) 進行安全儲存與記錄。
-                    <?php if (!empty($file) && $file['exists']): ?>
-                        <span style="color: #d97706; font-weight: 500;">（注意：重新上傳將會自動覆蓋並替換先前繳交的履歷檔案）</span>
-                    <?php endif; ?>
+                <p class="section-desc">
+                    支援 PDF 格式，檔案大小限 3MB 以下。檔案將以安全加密機制直接寫入系統資料庫 (SQLite) 供審閱使用。
+                    <span style="color: #d97706; font-weight: 500;">（注意：重新上傳將會自動覆蓋您先前繳交的履歷檔案）</span>
                 </p>
 
                 <form action="<?= site_url('student/upload') ?>" method="post" enctype="multipart/form-data" id="resumeUploadForm">
                     <?= csrf_field() ?>
 
-                    <input type="file" name="resume" id="fileInputElement" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display: none;">
+                    <input type="file" name="resume" id="fileInputElement" accept=".pdf,application/pdf" style="display: none;">
 
                     <div class="upload-dropzone" id="dropzoneElement">
                         <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
                         <div class="upload-title">點擊選擇檔案 或 將履歷檔案拖曳至此處</div>
-                        <div class="upload-hint">支援格式：PDF, DOC, DOCX（單檔最大上限 3MB）</div>
+                        <div class="upload-hint">支援格式：PDF（單檔最大上限 3MB）</div>
                     </div>
 
                     <!-- 選取檔案資訊顯示卡片 -->
@@ -793,7 +791,7 @@
             const form = document.getElementById('resumeUploadForm');
 
             const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
-            const ALLOWED_EXTS = ['pdf', 'doc', 'docx'];
+            const ALLOWED_EXTS = ['pdf'];
 
             // Click to select
             dropzone.addEventListener('click', () => {
@@ -848,7 +846,7 @@
                 const ext = file.name.split('.').pop().toLowerCase();
 
                 if (!ALLOWED_EXTS.includes(ext)) {
-                    alert('檔案格式不符！僅允許上傳 PDF, DOC 或 DOCX 檔案。');
+                    alert('檔案格式不符！僅允許上傳 PDF 檔案。');
                     resetFileInput();
                     return;
                 }
