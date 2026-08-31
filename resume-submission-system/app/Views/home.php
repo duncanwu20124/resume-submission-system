@@ -340,8 +340,6 @@
     <footer>
         <p>
             &copy; <?= date('Y') ?> Resume Submission System — Team Collaboration Project
-            <span style="opacity: 0.3; margin: 0 0.5rem;">|</span>
-            <a href="<?= site_url('AdminController/login') ?>" style="color: inherit; text-decoration: none; opacity: 0.6; font-size: 0.8rem;" title="管理員入口">管理員專區</a>
         </p>
     </footer>
 </body>
