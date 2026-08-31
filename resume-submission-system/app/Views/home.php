@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學生履歷繳交系統 | Resume Submission System</title>
+    <title>學生甄選與志願媒合系統 | Selection & Preference Matching System</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -275,7 +275,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
             </svg>
-            <span>學生履歷繳交系統</span>
+            <span>學生甄選與志願媒合系統</span>
         </div>
     </header>
 
@@ -340,7 +340,7 @@
 
     <footer>
         <p>
-            &copy; <?= date('Y') ?> Resume Submission System — Team Collaboration Project
+            &copy; <?= date('Y') ?> Selection & Preference Matching System — Team Collaboration Project
         </p>
     </footer>
 </body>

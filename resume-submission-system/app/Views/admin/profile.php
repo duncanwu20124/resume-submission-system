@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的帳號 - 甄選行政系統</title>
+    <title>我的帳號 - 學生甄選與志願媒合系統</title>
     <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 </head>
 <body>

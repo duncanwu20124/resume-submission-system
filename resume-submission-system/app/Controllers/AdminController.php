@@ -112,7 +112,7 @@ class AdminController extends BaseController
      */
     private function sendAdminRegistrationEmail(string $email, string $name, string $code): bool
     {
-        $subject = '【甄選行政系統】管理員帳號註冊驗證碼與安全提醒通知';
+        $subject = '【學生甄選與志願媒合系統】管理員帳號註冊驗證碼與安全提醒通知';
         $message = "您好 {$name}，\n\n" .
                    "系統偵測到剛才有人嘗試使用您的資料與此 Email（{$email}）進行管理員帳號註冊。\n\n" .
                    "若這是您本人的操作，您的註冊驗證碼為：\n" .
@@ -880,7 +880,7 @@ class AdminController extends BaseController
             'expires_at' => $expiresAt,
         ]);
 
-        $subject = '【甄選行政系統】管理員安全驗證碼';
+        $subject = '【學生甄選與志願媒合系統】管理員安全驗證碼';
         $message = "您好 {$name}，\n\n" .
                    "您請求了管理員身分驗證。\n" .
                    "您的驗證碼為：{$code}\n\n" .
@@ -979,7 +979,7 @@ class AdminController extends BaseController
         $pending['expires_at'] = time() + 900;
         session()->set('admin_pending_reset', $pending);
 
-        $subject = '【甄選行政系統】管理員安全驗證碼';
+        $subject = '【學生甄選與志願媒合系統】管理員安全驗證碼';
         $message = "您好 {$pending['name']}，\n\n" .
                    "您重新索取了管理員安全驗證碼。\n" .
                    "您的新驗證碼為：{$newCode}\n\n" .

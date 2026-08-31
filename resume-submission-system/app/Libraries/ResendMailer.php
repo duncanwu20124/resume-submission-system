@@ -14,7 +14,7 @@ class ResendMailer
     {
         $this->apiKey    = env('RESEND_API_KEY');
         $this->fromEmail = env('RESEND_FROM_EMAIL') ?? 'onboarding@resend.com';
-        $this->fromName  = env('RESEND_FROM_NAME') ?? 'Resume Submission System';
+        $this->fromName  = env('RESEND_FROM_NAME') ?? 'Selection & Preference Matching System';
     }
 
     public function isConfigured(): bool
