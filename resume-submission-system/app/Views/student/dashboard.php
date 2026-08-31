@@ -97,6 +97,21 @@
             font-size: 0.8rem;
         }
 
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.45rem 0.9rem;
+            border-radius: var(--radius-lg);
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: var(--background);
+            color: var(--text-main);
+        }
+
         .btn-logout {
             display: inline-flex;
             align-items: center;
@@ -194,6 +209,53 @@
             font-size: 0.85rem;
             font-weight: 500;
         }
+
+        /* Preference status banner */
+        .pref-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pref-banner--pending {
+            border-color: #fde68a;
+            background: #fffbeb;
+        }
+
+        .pref-banner--done {
+            border-color: #a7f3d0;
+            background: var(--success-light);
+        }
+
+        .pref-banner-info {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .pref-banner-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .pref-banner--pending .pref-banner-icon { background: #fef3c7; color: #b45309; }
+        .pref-banner--done .pref-banner-icon { background: #d1fae5; color: #059669; }
+
+        .pref-banner-title { font-weight: 700; font-size: 1rem; color: var(--text-main); }
+        .pref-banner-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.15rem; }
 
         /* Content Grid & Cards */
         .content-grid {
@@ -308,23 +370,6 @@
             font-weight: 600;
             color: var(--text-main);
             word-break: break-all;
-        }
-
-        .file-meta-path {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-family: monospace;
-            margin-top: 0.15rem;
-        }
-
-        .path-badge {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-family: monospace;
-            display: inline-block;
         }
 
         /* Action Buttons */
@@ -596,6 +641,7 @@
                 <div class="avatar"><?= mb_substr(esc($student['name'] ?? $student['student_name'] ?? '學'), 0, 1) ?></div>
                 <span><?= esc($student['name'] ?? $student['student_name'] ?? '') ?> (<?= esc($student['student_id'] ?? '') ?>)</span>
             </div>
+            <a href="<?= site_url('student/preferences') ?>" class="nav-link">志願序填寫</a>
             <a href="<?= site_url('student/logout') ?>" class="btn-logout">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                 登出 (Logout)
@@ -633,6 +679,47 @@
         </div>
 
         <?= $this->include('partials/announcement_board') ?>
+
+        <?php if ($preferenceLocked): ?>
+            <div class="pref-banner pref-banner--done">
+                <div class="pref-banner-info">
+                    <div class="pref-banner-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <div>
+                        <div class="pref-banner-title">志願序已送出</div>
+                        <div class="pref-banner-desc">送出時間：<?= esc($preference['submitted_at']) ?>（內容已鎖定，無法修改）</div>
+                    </div>
+                </div>
+                <a href="<?= site_url('student/preferences') ?>" class="btn btn-secondary">查看志願序</a>
+            </div>
+        <?php elseif ($preference): ?>
+            <div class="pref-banner pref-banner--pending">
+                <div class="pref-banner-info">
+                    <div class="pref-banner-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="pref-banner-title">志願序草稿尚未送出</div>
+                        <div class="pref-banner-desc">您已儲存部分志願，請於截止時間前完成排序並送出。</div>
+                    </div>
+                </div>
+                <a href="<?= site_url('student/preferences') ?>" class="btn btn-primary">繼續編輯志願序</a>
+            </div>
+        <?php else: ?>
+            <div class="pref-banner pref-banner--pending">
+                <div class="pref-banner-info">
+                    <div class="pref-banner-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="pref-banner-title">尚未填寫志願序</div>
+                        <div class="pref-banner-desc">請選擇 6 所大學並排序，送出後即無法修改，請盡早完成。</div>
+                    </div>
+                </div>
+                <a href="<?= site_url('student/preferences') ?>" class="btn btn-primary">立即填寫志願序</a>
+            </div>
+        <?php endif; ?>
 
         <div class="content-grid">
             <!-- 1. 已上傳檔案清單 (Uploaded Resumes List) -->
@@ -678,9 +765,6 @@
                                             </div>
                                             <div>
                                                 <div class="file-meta-name"><?= esc($file['name']) ?></div>
-                                                <div class="file-meta-path">
-                                                    本地相對路徑: <span class="path-badge"><?= esc($file['relative_path']) ?></span>
-                                                </div>
                                             </div>
                                         </div>
                                     </td>

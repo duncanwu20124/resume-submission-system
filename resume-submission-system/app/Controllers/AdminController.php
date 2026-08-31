@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\AdminModel;
 use App\Models\AnnouncementModel;
-use App\Models\FormalApplicationModel;
+use App\Models\StudentPreferenceModel;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -357,114 +357,71 @@ class AdminController extends BaseController
         return $this->response->setJSON(['success' => true]);
     }
 
-    public function applications()
+    public function preferences()
     {
         if (!$this->requireAdminLogin()) {
             return redirect()->to('/AdminController/login');
         }
 
-        $applicationModel = new FormalApplicationModel();
-        $applicationModel->ensureInitialData();
-        $filters = $this->getFormalApplicationFilters();
-        $applications = $applicationModel
-            ->select('student_id as id, name')
-            ->findAll();
-        $applications = $this->filterAndSortFormalApplications($applications, $filters);
+        $prefModel = new StudentPreferenceModel();
+        $rows      = $prefModel->listWithStudents();
 
-        $total = count($applications);
-        $pageCount = max(1, (int) ceil($total / $filters['per_page']));
-        $page = max(1, min((int) $this->request->getGet('page'), $pageCount));
+        $keyword = trim((string) $this->request->getGet('keyword'));
+        if ($keyword !== '') {
+            $rows = array_values(array_filter($rows, static function (array $row) use ($keyword): bool {
+                return mb_stripos($row['student_name'], $keyword) !== false
+                    || mb_stripos($row['student_number'], $keyword) !== false;
+            }));
+        }
 
-        return $this->renderAdminView('admin/applications', [
-            'applications' => array_slice($applications, ($page - 1) * $filters['per_page'], $filters['per_page']),
-            'filters'      => $filters,
-            'page'         => $page,
-            'page_count'   => $pageCount,
-            'total'        => $total,
-            'total_all'    => $applicationModel->countAll(),
+        return $this->renderAdminView('admin/preferences', [
+            'preferences'     => $rows,
+            'keyword'         => $keyword,
+            'total_students'  => (new UserModel())->countAll(),
+            'submitted_count' => $prefModel->countAll(),
         ]);
     }
 
-    private function getFormalApplicationFilters(): array
-    {
-        $searchBy = $this->request->getGet('search_by');
-        $sort = $this->request->getGet('sort');
-        $direction = strtoupper((string) $this->request->getGet('direction'));
-        $perPage = (int) $this->request->getGet('per_page');
-
-        return [
-            'search_by' => in_array($searchBy, ['id', 'name'], true) ? $searchBy : 'name',
-            'keyword'   => trim((string) $this->request->getGet('keyword')),
-            'sort'      => in_array($sort, ['id', 'name'], true) ? $sort : 'id',
-            'direction' => in_array($direction, ['ASC', 'DESC'], true) ? $direction : 'ASC',
-            'per_page'  => in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 20,
-        ];
-    }
-
-    private function filterAndSortFormalApplications(array $applications, array $filters): array
-    {
-        if ($filters['keyword'] !== '') {
-            $applications = array_values(array_filter(
-                $applications,
-                static fn (array $application): bool => mb_stripos($application[$filters['search_by']], $filters['keyword']) !== false
-            ));
-        }
-
-        usort($applications, static function (array $left, array $right) use ($filters): int {
-            $result = $left[$filters['sort']] <=> $right[$filters['sort']];
-            return $filters['direction'] === 'DESC' ? -$result : $result;
-        });
-
-        return $applications;
-    }
-
-    public function applicationsExport()
+    public function preferenceDetail($studentDbId)
     {
         if (!$this->requireAdminLogin()) {
             return redirect()->to('/AdminController/login');
         }
 
-        $applicationModel = new FormalApplicationModel();
-        $applicationModel->ensureInitialData();
-        $applications = $applicationModel
-            ->select('student_id as id, name')
-            ->findAll();
-        $applications = $this->filterAndSortFormalApplications($applications, $this->getFormalApplicationFilters());
-        $stream = fopen('php://temp', 'r+');
-        fwrite($stream, "\xEF\xBB\xBF");
-        fputcsv($stream, ['學號 Student ID', '使用者姓名']);
+        $userModel = new UserModel();
+        $student   = $userModel->find($studentDbId);
 
-        foreach ($applications as $application) {
-            fputcsv($stream, [$application['id'], $application['name']]);
+        if (!$student) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('找不到指定學生。');
         }
 
-        rewind($stream);
-        $csv = stream_get_contents($stream);
-        fclose($stream);
+        $prefModel  = new StudentPreferenceModel();
+        $preference = $prefModel->findByStudent((int) $studentDbId);
 
-        return $this->response
-            ->download('applications-export-' . date('Ymd_His') . '.csv', $csv)
-            ->setContentType('text/csv; charset=UTF-8');
+        if (!$preference || !$prefModel->isLocked($preference)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('該學生尚未送出志願序。');
+        }
+
+        return $this->renderAdminView('admin/preference_detail', [
+            'student'    => $student,
+            'preference' => $preference,
+            'choices'    => $prefModel->choicesOf($preference),
+        ]);
     }
 
-    public function applicationDetail(string $applicationId)
+    public function resetPreference($studentDbId)
     {
         if (!$this->requireAdminLogin()) {
             return redirect()->to('/AdminController/login');
         }
 
-        $applicationModel = new FormalApplicationModel();
-        $applicationModel->ensureInitialData();
-        $application = $applicationModel
-            ->select('student_id as id, name')
-            ->where('student_id', $applicationId)
-            ->first();
+        $prefModel = new StudentPreferenceModel();
 
-        if ($application) {
-            return $this->renderAdminView('admin/application_detail', ['application' => $application]);
+        if (!$prefModel->resetByStudent((int) $studentDbId)) {
+            return redirect()->to('/AdminController/preferences')->with('error', '該學生尚未送出志願序，無需重新開放。');
         }
 
-        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('找不到正式報名資料。');
+        return redirect()->to('/AdminController/preferences')->with('success', '已重新開放該學生的志願序，學生可再次登入填寫。');
     }
 
     public function profile()

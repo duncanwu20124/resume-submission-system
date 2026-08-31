@@ -22,6 +22,9 @@ $routes->group('student', function ($routes) {
     $routes->get('viewFile', 'Student\DashboardController::viewFile', ['filter' => 'student_auth']);
     $routes->get('download', 'Student\DashboardController::download', ['filter' => 'student_auth']);
     $routes->post('deleteFile', 'Student\DashboardController::deleteFile', ['filter' => 'student_auth']);
+    $routes->get('preferences', 'Student\PreferenceController::index', ['filter' => 'student_auth']);
+    $routes->post('preferences', 'Student\PreferenceController::save', ['filter' => 'student_auth']);
+    $routes->get('preferences/receipt', 'Student\PreferenceController::receipt', ['filter' => 'student_auth']);
 });
 
 // 管理員端
@@ -35,9 +38,6 @@ $routes->get('AdminController/resendVerification', 'AdminController::resendVerif
 $routes->get('AdminController', 'AdminController::index');
 $routes->get('AdminController/search', 'AdminController::search');
 $routes->post('AdminController/keepAlive', 'AdminController::keepAlive');
-$routes->get('AdminController/applications', 'AdminController::applications');
-$routes->get('AdminController/applications/export', 'AdminController::applicationsExport');
-$routes->get('AdminController/applications/(:segment)', 'AdminController::applicationDetail/$1');
 $routes->get('AdminController/profile', 'AdminController::profile');
 $routes->post('AdminController/profile', 'AdminController::updateProfile');
 $routes->get('AdminController/export', 'AdminController::export');
@@ -57,3 +57,6 @@ $routes->get('AdminController/announcements', 'AdminController::announcements');
 $routes->post('AdminController/createAnnouncement', 'AdminController::createAnnouncement');
 $routes->post('AdminController/toggleAnnouncement/(:num)', 'AdminController::toggleAnnouncement/$1');
 $routes->post('AdminController/deleteAnnouncement/(:num)', 'AdminController::deleteAnnouncement/$1');
+$routes->get('AdminController/preferences', 'AdminController::preferences');
+$routes->get('AdminController/preferences/(:num)', 'AdminController::preferenceDetail/$1');
+$routes->post('AdminController/preferences/(:num)/reset', 'AdminController::resetPreference/$1');

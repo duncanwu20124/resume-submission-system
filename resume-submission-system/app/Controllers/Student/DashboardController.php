@@ -5,6 +5,7 @@ namespace App\Controllers\Student;
 use App\Controllers\BaseController;
 use App\Models\AnnouncementModel;
 use App\Models\StudentModel;
+use App\Models\StudentPreferenceModel;
 
 class DashboardController extends BaseController
 {
@@ -36,7 +37,6 @@ class DashboardController extends BaseController
 
             $fileData = [
                 'name'          => $student['file_name'],
-                'relative_path' => '資料庫儲存',
                 'size'          => $fileSize,
                 'uploaded_at'   => $student['uploaded_at'],
                 'is_pdf'        => ($ext === 'pdf'),
@@ -48,12 +48,16 @@ class DashboardController extends BaseController
         }
 
         $announcementModel = new AnnouncementModel();
+        $preferenceModel   = new StudentPreferenceModel();
+        $preference        = $preferenceModel->findByStudent((int) $studentDbId);
 
         return view('student/dashboard', [
-            'student'       => $student,
-            'file'          => $fileData,
-            'files'         => $files,
-            'announcements' => $announcementModel->getActive(),
+            'student'          => $student,
+            'file'             => $fileData,
+            'files'            => $files,
+            'announcements'    => $announcementModel->getActive(),
+            'preference'       => $preference,
+            'preferenceLocked' => $preference && $preferenceModel->isLocked($preference),
         ]);
     }
 
