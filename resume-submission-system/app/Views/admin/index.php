@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>履歷繳交資料管理 | 學生履歷繳交系統</title>
+    <title>履歷繳交資料管理 | 學生甄選與志願媒合系統</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +24,7 @@
         </div>
         <div class="sys-navbar__user">
             <span id="admin-session-nav-countdown" class="admin-session-nav-countdown" aria-label="管理員登入剩餘時間">05:00</span>
+            <a class="sys-navbar__link" href="/AdminController/preferences">志願序管理</a>
             <a class="sys-navbar__link" href="/AdminController/announcements">公告管理</a>
             <a class="sys-navbar__link" href="/AdminController/profile">我的帳號</a>
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
@@ -90,17 +91,6 @@
             <strong class="stat-card__value stat-card__value--time">
                 <?= !empty($statistics['latest_uploaded_at']) ? esc($statistics['latest_uploaded_at']) : '尚無紀錄' ?>
             </strong>
-        </div>
-    </section>
-
-    <section class="admin-panel" aria-labelledby="mock-applications-heading">
-        <div class="admin-panel__header">
-            <h3 class="admin-panel__title" id="mock-applications-heading">正式報名資料</h3>
-            <span class="tag-status tag-status--muted">230 筆</span>
-        </div>
-        <div class="admin-panel__body">
-            <p class="form-hint">此清單獨立於目前已註冊使用者，只包含學號 Student ID 與使用者姓名。</p>
-            <a class="btn btn--primary" href="/AdminController/applications">進入報名資料管理</a>
         </div>
     </section>
 
