@@ -2,7 +2,7 @@ cd d:\usefull_python_tool\CAC_PROJECT\0813\resume-submission-system\resume-submi
 php -S localhost:8080 -t public
 
 http://localhost:8080/index.php/
-
+http://localhost:8080/AdminController/login
 
 cd ~/Desktop/AILab_Drives/resume-submission-system/resume-submission-system
 composer install

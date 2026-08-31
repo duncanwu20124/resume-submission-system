@@ -26,8 +26,7 @@
         <?php endif; ?>
 
         <form action="/AdminController/doResetPassword" method="POST">
-            <input type="hidden" name="token" value="<?= esc($token ?? '') ?>">
-
+            <input type="hidden" name="_admin_csrf" value="">
             <div class="form-field">
                 <label for="password">新密碼 (至少 6 個字元)</label>
                 <input id="password" type="password" name="password" minlength="6" required autofocus>
@@ -46,6 +45,8 @@
         </div>
     </div>
 </main>
+
+<script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
 
 </body>
 </html>
