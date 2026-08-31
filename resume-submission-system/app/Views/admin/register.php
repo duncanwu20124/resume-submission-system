@@ -20,6 +20,7 @@
         <?php endif; ?>
 
         <form action="/AdminController/doRegister" method="POST">
+            <input type="hidden" name="_admin_csrf" value="">
             <div class="form-field">
                 <label for="name">管理員姓名</label>
                 <input id="name" type="text" name="name" placeholder="請輸入您的真實姓名" value="<?= isset($old['name']) ? esc($old['name']) : '' ?>" autocomplete="name" required autofocus>
@@ -61,6 +62,8 @@
         </div>
     </div>
 </main>
+
+<script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
 
 </body>
 </html>

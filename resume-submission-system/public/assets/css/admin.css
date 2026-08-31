@@ -174,6 +174,54 @@ body {
 }
 
 /* ==========================================================================
+   管理首頁統計
+   ========================================================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  min-height: 94px;
+  padding: 14px 16px;
+  background-color: var(--sys-surface);
+  border: 1px solid var(--sys-border);
+  border-left: 4px solid var(--sys-primary);
+  border-radius: var(--sys-radius);
+  box-shadow: var(--sys-shadow);
+}
+
+.stat-card--success {
+  border-left-color: var(--sys-success);
+}
+
+.stat-card--muted {
+  border-left-color: var(--sys-border-dark);
+}
+
+.stat-card__label {
+  display: block;
+  color: var(--sys-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.stat-card__value {
+  display: block;
+  margin-top: 6px;
+  color: var(--sys-text);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.stat-card__value--time {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
    面板與區塊
    ========================================================================== */
 .admin-panel {
@@ -265,6 +313,111 @@ body {
 .search-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-alert {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.admin-alert--error {
+  color: #9f1239;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+}
+
+.admin-alert--success {
+  color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.admin-session-nav-countdown {
+  padding: 4px 8px;
+  color: #fef3c7;
+  border: 1px solid rgba(254, 243, 199, 0.45);
+  border-radius: var(--sys-radius);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.admin-session-warning {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.admin-session-warning[hidden] {
+  display: none;
+}
+
+.admin-session-warning__dialog {
+  width: min(100%, 420px);
+  padding: 24px;
+  background: var(--sys-surface);
+  border: 1px solid var(--sys-border);
+  border-radius: var(--sys-radius);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.2);
+  text-align: center;
+}
+
+.admin-session-warning__dialog h2 {
+  margin: 0 0 10px;
+  color: var(--sys-text);
+  font-size: 1.1rem;
+}
+
+.admin-session-warning__dialog p {
+  margin: 0;
+  color: var(--sys-text-secondary);
+  line-height: 1.6;
+}
+
+.admin-session-warning__dialog strong {
+  color: var(--sys-danger, #b91c1c);
+  font-size: 1.2rem;
+}
+
+.admin-session-warning__dialog .btn {
+  margin-top: 16px;
+}
+
+.batch-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  background-color: var(--sys-surface-alt);
+  border: 1px solid var(--sys-border);
+  border-bottom: none;
+  border-radius: var(--sys-radius) var(--sys-radius) 0 0;
+  color: var(--sys-text-secondary);
+  font-size: 0.85rem;
+}
+
+.batch-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.select-all-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--sys-text);
+  font-weight: 600;
 }
 
 /* ==========================================================================
@@ -354,6 +507,11 @@ body {
   text-align: center;
 }
 
+.data-table .col-select {
+  text-align: center;
+  white-space: nowrap;
+}
+
 .table-actions {
   display: inline-flex;
   gap: 6px;
@@ -364,6 +522,16 @@ body {
   padding: 36px 16px !important;
   color: var(--sys-text-muted);
   font-size: 0.9rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--sys-text-secondary);
+  font-size: 0.85rem;
 }
 
 /* ==========================================================================
@@ -682,6 +850,10 @@ body {
    響應式設計 (RWD)
    ========================================================================== */
 @media (max-width: 860px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .detail-layout {
     grid-template-columns: 1fr;
   }
@@ -703,6 +875,19 @@ body {
   .search-box__form {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .batch-toolbar__actions {
+    justify-content: space-between;
   }
 
   .search-actions {

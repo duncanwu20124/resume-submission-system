@@ -24,6 +24,7 @@
         <?php endif; ?>
 
         <form action="/AdminController/doLogin" method="POST">
+            <input type="hidden" name="_admin_csrf" value="">
             <div class="form-field">
                 <label for="username">管理員帳號</label>
                 <input id="username" type="text" name="username" autocomplete="username" required autofocus>
@@ -40,10 +41,12 @@
         <div class="auth-footer">
             <a href="/AdminController/forgotPassword">忘記密碼？</a>
             <a href="/AdminController/register">註冊管理員帳號</a>
-            <a href="<?= site_url('/') ?>">返回系統首頁</a>
+            <a href="<?= site_url('/') ?>">前往首頁</a>
         </div>
     </div>
 </main>
+
+<script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
 
 </body>
 </html>

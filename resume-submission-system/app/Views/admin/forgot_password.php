@@ -28,6 +28,7 @@
         </p>
 
         <form action="/AdminController/sendResetLink" method="POST">
+            <input type="hidden" name="_admin_csrf" value="">
             <div class="form-field">
                 <label for="name">管理員姓名</label>
                 <input id="name" type="text" name="name" value="<?= esc($old['name'] ?? '') ?>" required autofocus placeholder="請輸入管理員姓名">
@@ -52,6 +53,8 @@
         </div>
     </div>
 </main>
+
+<script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
 
 </body>
 </html>

@@ -15,6 +15,7 @@
         </div>
         <div class="sys-navbar__user">
             <a class="sys-navbar__link" href="/AdminController">返回資料清單</a>
+            <a class="sys-navbar__link" href="/AdminController/profile">我的帳號</a>
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
         </div>
     </div>
@@ -36,7 +37,7 @@
             <table class="detail-table">
                 <tbody>
                     <tr>
-                        <th scope="row">使用者 ID</th>
+                        <th scope="row">學號 Student ID</th>
                         <td><?= esc($user['student_id']) ?></td>
                     </tr>
                     <tr>
@@ -102,6 +103,87 @@
         </section>
     </div>
 </main>
+
+<script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
+
+<div id="admin-session-warning" class="admin-session-warning" hidden role="alertdialog" aria-modal="true" aria-labelledby="admin-session-warning-title" tabindex="-1">
+    <div class="admin-session-warning__dialog">
+        <h2 id="admin-session-warning-title">管理員登入即將逾時</h2>
+        <p>已經 5 分鐘沒有操作，系統將在 <strong id="admin-session-countdown">30</strong> 秒後返回管理員登入畫面。</p>
+        <button class="btn btn--primary" type="button" id="admin-session-continue">繼續使用</button>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const lastActivity = <?= (int) session()->get('admin_last_activity') ?>;
+        const warning = document.getElementById('admin-session-warning');
+        const countdown = document.getElementById('admin-session-countdown');
+        const continueButton = document.getElementById('admin-session-continue');
+
+        if (!lastActivity || !warning || !countdown || !continueButton) {
+            return;
+        }
+
+        const showWarningAfter = Math.max(0, ((lastActivity + 300) * 1000) - Date.now());
+        let countdownTimer;
+        let redirectTimer;
+
+        const continueSession = function () {
+            continueButton.disabled = true;
+            window.clearInterval(countdownTimer);
+            window.clearTimeout(redirectTimer);
+
+            fetch('/AdminController/keepAlive', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                body: '_admin_csrf=' + encodeURIComponent((document.querySelector('input[name="_admin_csrf"]') || {}).value || ''),
+            })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('session-expired');
+                    }
+                    return response.json();
+                })
+                .then(function (result) {
+                    if (!result.success) {
+                        throw new Error('session-expired');
+                    }
+                    window.location.reload();
+                })
+                .catch(function () {
+                    window.location.replace('/AdminController/login');
+                });
+        };
+
+        continueButton.addEventListener('click', continueSession);
+        warning.addEventListener('click', function (event) {
+            if (event.target === warning) {
+                continueSession();
+            }
+        });
+
+        window.setTimeout(function () {
+            warning.hidden = false;
+            warning.focus();
+
+            let seconds = 30;
+            countdownTimer = window.setInterval(function () {
+                seconds -= 1;
+                countdown.textContent = seconds;
+
+                if (seconds <= 0) {
+                    window.clearInterval(countdownTimer);
+                }
+            }, 1000);
+
+            redirectTimer = window.setTimeout(function () {
+                window.location.replace('/AdminController/login');
+            }, 30000);
+        }, showWarningAfter);
+    }());
+</script>
 
 </body>
 </html>
