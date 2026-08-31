@@ -284,6 +284,7 @@
             <h1 class="hero-title">歡迎使用履歷上傳與管理系統</h1>
             <p class="hero-subtitle">請選擇您的身分存取系統功能。學生可上傳與管理履歷檔案；管理員可檢閱與下載審核。</p>
 
+            <?= $this->include('partials/announcement_board') ?>
 
             <!-- 繳交資訊：日期可依實際時程修改 -->
             <section class="info-panel" aria-label="履歷繳交資訊">

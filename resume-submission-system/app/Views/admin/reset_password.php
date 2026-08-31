@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理員重設密碼 - 甄選行政系統</title>
+    <title>管理員重設密碼 | 學生履歷繳交系統</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 </head>
 <body>
 
 <main class="admin-shell admin-shell--narrow">
     <div class="auth-box">
+        <a href="<?= site_url('/') ?>" class="back-link">&larr; 返回系統首頁</a>
+
         <div class="auth-header">
-            <p class="auth-header__sub">管理員系統</p>
+            <span class="auth-header__sub">Admin Portal</span>
             <h1 class="auth-header__title">設定新密碼</h1>
         </div>
 

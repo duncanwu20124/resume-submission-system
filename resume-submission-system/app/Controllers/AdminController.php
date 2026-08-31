@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\AdminModel;
+use App\Models\AnnouncementModel;
 use App\Models\FormalApplicationModel;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\RequestInterface;
@@ -1089,5 +1090,75 @@ class AdminController extends BaseController
     {
         session()->destroy();
         return redirect()->to('/AdminController/login');
+    }
+
+    public function announcements()
+    {
+        if (!session()->get('admin_logged_in')) {
+            return redirect()->to('/AdminController/login');
+        }
+
+        $model = new AnnouncementModel();
+        $announcements = $model->orderBy('created_at', 'DESC')->findAll();
+
+        return view('admin/announcements', ['announcements' => $announcements]);
+    }
+
+    public function createAnnouncement()
+    {
+        if (!session()->get('admin_logged_in')) {
+            return redirect()->to('/AdminController/login');
+        }
+
+        $title       = trim((string) $this->request->getVar('title'));
+        $content     = trim((string) $this->request->getVar('content'));
+        $displayType = $this->request->getVar('display_type');
+
+        if (!in_array($displayType, ['list', 'marquee'], true)) {
+            $displayType = 'list';
+        }
+
+        if (empty($title) || empty($content)) {
+            return redirect()->to('/AdminController/announcements')->with('error', '標題與內容皆為必填項目。');
+        }
+
+        $model = new AnnouncementModel();
+        $model->save([
+            'title'        => $title,
+            'content'      => $content,
+            'display_type' => $displayType,
+            'is_active'    => 1,
+            'admin_id'     => session()->get('admin_id'),
+        ]);
+
+        return redirect()->to('/AdminController/announcements')->with('success', '公告已成功發布。');
+    }
+
+    public function toggleAnnouncement($id)
+    {
+        if (!session()->get('admin_logged_in')) {
+            return redirect()->to('/AdminController/login');
+        }
+
+        $model = new AnnouncementModel();
+        $announcement = $model->find($id);
+
+        if ($announcement) {
+            $model->update($id, ['is_active' => $announcement['is_active'] ? 0 : 1]);
+        }
+
+        return redirect()->to('/AdminController/announcements')->with('success', '公告狀態已更新。');
+    }
+
+    public function deleteAnnouncement($id)
+    {
+        if (!session()->get('admin_logged_in')) {
+            return redirect()->to('/AdminController/login');
+        }
+
+        $model = new AnnouncementModel();
+        $model->delete($id);
+
+        return redirect()->to('/AdminController/announcements')->with('success', '公告已刪除。');
     }
 }

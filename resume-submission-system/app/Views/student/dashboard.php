@@ -632,6 +632,8 @@
             </div>
         </div>
 
+        <?= $this->include('partials/announcement_board') ?>
+
         <div class="content-grid">
             <!-- 1. 已上傳檔案清單 (Uploaded Resumes List) -->
             <div class="card">

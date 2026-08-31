@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理員忘記密碼 - 甄選行政系統</title>
+    <title>管理員忘記密碼 | 學生履歷繳交系統</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 </head>
 <body>
 
 <main class="admin-shell admin-shell--narrow">
     <div class="auth-box">
+        <a href="<?= site_url('/') ?>" class="back-link">&larr; 返回系統首頁</a>
+
         <div class="auth-header">
-            <p class="auth-header__sub">管理員系統</p>
+            <span class="auth-header__sub">Admin Portal</span>
             <h1 class="auth-header__title">忘記密碼</h1>
         </div>
 
@@ -19,11 +25,19 @@
             <div class="alert alert--success" role="status"><?= esc(session()->getFlashdata('success')) ?></div>
         <?php endif; ?>
 
+        <?php if (session()->getFlashdata('dev_reset_link')): ?>
+            <div class="alert alert--info" style="word-break: break-all; display: block;">
+                <strong>[本地測試模擬郵件]</strong><br>
+                重設密碼連結：<br>
+                <a href="<?= session()->getFlashdata('dev_reset_link') ?>"><?= session()->getFlashdata('dev_reset_link') ?></a>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($error)): ?>
             <div class="alert alert--error" role="alert"><?= esc($error) ?></div>
         <?php endif; ?>
 
-        <p style="color: var(--text-muted, #64748b); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5;">
+        <p style="color: var(--sys-text-muted); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5;">
             請輸入您註冊管理員時填寫的姓名、電子郵件與員工證號，驗證身分後系統將發送重設密碼信件給您。
         </p>
 
@@ -49,7 +63,6 @@
 
         <div class="auth-footer">
             <a href="/AdminController/login">返回登入</a>
-            <a href="<?= site_url('/') ?>">返回系統首頁</a>
         </div>
     </div>
 </main>

@@ -3,6 +3,7 @@
 namespace App\Controllers\Student;
 
 use App\Controllers\BaseController;
+use App\Models\AnnouncementModel;
 use App\Models\StudentModel;
 
 class DashboardController extends BaseController
@@ -46,10 +47,13 @@ class DashboardController extends BaseController
             $files[] = $fileData;
         }
 
+        $announcementModel = new AnnouncementModel();
+
         return view('student/dashboard', [
-            'student' => $student,
-            'file'    => $fileData,
-            'files'   => $files,
+            'student'       => $student,
+            'file'          => $fileData,
+            'files'         => $files,
+            'announcements' => $announcementModel->getActive(),
         ]);
     }
 
