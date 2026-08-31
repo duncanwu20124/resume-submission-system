@@ -38,6 +38,7 @@
         </p>
 
         <form action="/AdminController/doVerifyRegistration" method="POST">
+            <input type="hidden" name="_admin_csrf" value="">
             <div class="form-field">
                 <label for="code">註冊驗證碼</label>
                 <input id="code" type="text" name="code" maxlength="6" style="text-transform: uppercase; font-size: 1.1rem; letter-spacing: 2px; text-align: center;" required autofocus>
@@ -52,6 +53,8 @@
         </div>
     </div>
 </main>
+
+<script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
 
 </body>
 </html>

@@ -34,6 +34,14 @@ $routes->post('AdminController/doVerifyRegistration', 'AdminController::doVerify
 $routes->get('AdminController/resendVerification', 'AdminController::resendVerification');
 $routes->get('AdminController', 'AdminController::index');
 $routes->get('AdminController/search', 'AdminController::search');
+$routes->post('AdminController/keepAlive', 'AdminController::keepAlive');
+$routes->get('AdminController/applications', 'AdminController::applications');
+$routes->get('AdminController/applications/export', 'AdminController::applicationsExport');
+$routes->get('AdminController/applications/(:segment)', 'AdminController::applicationDetail/$1');
+$routes->get('AdminController/profile', 'AdminController::profile');
+$routes->post('AdminController/profile', 'AdminController::updateProfile');
+$routes->get('AdminController/export', 'AdminController::export');
+$routes->post('AdminController/batchDownload', 'AdminController::batchDownload');
 $routes->get('AdminController/show/(:num)', 'AdminController::show/$1');
 $routes->get('AdminController/viewFile/(:num)', 'AdminController::viewFile/$1');
 $routes->get('AdminController/download/(:num)', 'AdminController::download/$1');

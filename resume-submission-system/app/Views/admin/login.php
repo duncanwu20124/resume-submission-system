@@ -24,6 +24,7 @@
         <?php endif; ?>
 
         <form action="/AdminController/doLogin" method="POST">
+            <input type="hidden" name="_admin_csrf" value="">
             <div class="form-field">
                 <label for="username">管理員帳號</label>
                 <input id="username" type="text" name="username" autocomplete="username" required autofocus>
@@ -44,6 +45,8 @@
         </div>
     </div>
 </main>
+
+<script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
 
 </body>
 </html>
