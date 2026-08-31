@@ -40,7 +40,7 @@
         <div class="auth-footer">
             <a href="/AdminController/forgotPassword">忘記密碼？</a>
             <a href="/AdminController/register">註冊管理員帳號</a>
-            <a href="<?= site_url('/') ?>">返回系統首頁</a>
+            <a href="<?= site_url('/') ?>">前往首頁</a>
         </div>
     </div>
 </main>
