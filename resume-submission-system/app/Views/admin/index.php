@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>履歷繳交資料管理 - 甄選行政系統</title>
+    <title>履歷繳交資料管理 | 學生履歷繳交系統</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 </head>
 <body>
@@ -11,7 +15,12 @@
 <header class="sys-navbar">
     <div class="sys-navbar__inner">
         <div class="sys-navbar__brand">
+            <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--sys-primary);">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+            </svg>
             <h1 class="sys-navbar__title">管理員系統</h1>
+            <span class="sys-navbar__badge">Admin Portal</span>
         </div>
         <div class="sys-navbar__user">
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
