@@ -23,6 +23,7 @@
             <span class="sys-navbar__badge">Admin Portal</span>
         </div>
         <div class="sys-navbar__user">
+            <a class="sys-navbar__link" href="/AdminController/announcements">公告管理</a>
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
         </div>
     </div>

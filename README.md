@@ -58,3 +58,5 @@ php spark serve
 ```
 
 4. visit http://localhost:8080
+
+5. admin pages http://localhost:8080/AdminController/login

@@ -39,3 +39,7 @@ $routes->post('AdminController/sendResetLink', 'AdminController::sendResetLink')
 $routes->get('AdminController/resetPassword', 'AdminController::resetPassword');
 $routes->post('AdminController/doResetPassword', 'AdminController::doResetPassword');
 $routes->get('AdminController/logout', 'AdminController::logout');
+$routes->get('AdminController/announcements', 'AdminController::announcements');
+$routes->post('AdminController/createAnnouncement', 'AdminController::createAnnouncement');
+$routes->post('AdminController/toggleAnnouncement/(:num)', 'AdminController::toggleAnnouncement/$1');
+$routes->post('AdminController/deleteAnnouncement/(:num)', 'AdminController::deleteAnnouncement/$1');
