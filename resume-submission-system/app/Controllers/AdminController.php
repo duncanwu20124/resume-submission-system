@@ -6,9 +6,12 @@ use App\Config\Universities;
 use App\Controllers\BaseController;
 use App\Models\AdminModel;
 use App\Models\AnnouncementModel;
+use App\Models\AllocationRunModel;
+use App\Models\StudentScoreModel;
 use App\Models\StudentPreferenceModel;
 use App\Models\UserModel;
 use App\Support\PreferenceAnalytics;
+use App\Services\AllocationService;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -459,6 +462,99 @@ class AdminController extends BaseController
         }
 
         return redirect()->to('/AdminController/preferences')->with('success', '已重新開放該學生的志願序，學生可再次登入填寫。');
+    }
+
+    public function scoring()
+    {
+        if (!$this->requireAdminLogin()) return redirect()->to('/AdminController/login');
+
+        $rows = db_connect()->table('student_preferences p')
+            ->select('p.student_db_id, p.submitted_at, students.student_id as student_number, students.name as student_name, student_scores.total_score, student_scores.status as score_status, student_scores.comment, student_scores.updated_at as scored_at')
+            ->join('students', 'students.id = p.student_db_id')
+            ->join('student_scores', 'student_scores.student_db_id = p.student_db_id', 'left')
+            ->where('p.status', StudentPreferenceModel::STATUS_SUBMITTED)
+            ->orderBy('students.student_id', 'ASC')->get()->getResultArray();
+
+        return $this->renderAdminView('admin/scoring', ['students' => $rows]);
+    }
+
+    public function saveScore($studentDbId)
+    {
+        if (!$this->requireAdminLogin()) return redirect()->to('/AdminController/login');
+
+        $scoreRaw = trim((string) $this->request->getPost('total_score'));
+        $status = (string) $this->request->getPost('status');
+        if (!is_numeric($scoreRaw) || (float) $scoreRaw < 0 || (float) $scoreRaw > 100 || !preg_match('/^\d{1,3}(?:\.\d{1,2})?$/', $scoreRaw)) {
+            return redirect()->to('/AdminController/scoring')->with('error', '分數必須是 0～100，最多小數點後兩位。');
+        }
+        if (!in_array($status, [StudentScoreModel::STATUS_DRAFT, StudentScoreModel::STATUS_CONFIRMED], true)) {
+            return redirect()->to('/AdminController/scoring')->with('error', '評分狀態不正確。');
+        }
+        $preference = (new StudentPreferenceModel())->findByStudent((int) $studentDbId);
+        if (!$preference || $preference['status'] !== StudentPreferenceModel::STATUS_SUBMITTED) {
+            return redirect()->to('/AdminController/scoring')->with('error', '該學生尚未正式送出志願序。');
+        }
+
+        $model = new StudentScoreModel();
+        $existing = $model->findByStudent((int) $studentDbId);
+        $data = [
+            'student_db_id' => (int) $studentDbId,
+            'total_score' => number_format((float) $scoreRaw, 2, '.', ''),
+            'status' => $status,
+            'comment' => trim((string) $this->request->getPost('comment')),
+            'scored_by' => (int) session()->get('admin_id'),
+            'confirmed_at' => $status === StudentScoreModel::STATUS_CONFIRMED ? date('Y-m-d H:i:s') : null,
+        ];
+        $existing ? $model->update($existing['id'], $data) : $model->insert($data);
+        return redirect()->to('/AdminController/scoring')->with('success', '學生評分已儲存。');
+    }
+
+    public function allocation()
+    {
+        if (!$this->requireAdminLogin()) return redirect()->to('/AdminController/login');
+
+        $runId = (int) $this->request->getGet('run');
+        $runModel = new AllocationRunModel();
+        $run = $runId > 0 ? $runModel->find($runId) : $runModel->orderBy('id', 'DESC')->first();
+        $results = [];
+        if ($run) {
+            $results = db_connect()->table('allocation_results r')
+                ->select('r.*, students.student_id as student_number, students.name as student_name')
+                ->join('students', 'students.id = r.student_db_id')
+                ->where('r.allocation_run_id', $run['id'])
+                ->orderBy('r.overall_rank', 'ASC')->get()->getResultArray();
+        }
+        $submitted = (new StudentPreferenceModel())->countSubmitted();
+        $confirmed = db_connect()->table('student_scores s')
+            ->join('student_preferences p', 'p.student_db_id = s.student_db_id')
+            ->where('p.status', StudentPreferenceModel::STATUS_SUBMITTED)
+            ->where('s.status', StudentScoreModel::STATUS_CONFIRMED)->countAllResults();
+
+        return $this->renderAdminView('admin/allocation', [
+            'run' => $run, 'results' => $results, 'submitted' => $submitted,
+            'confirmed' => $confirmed, 'runs' => $runModel->orderBy('id', 'DESC')->findAll(20),
+        ]);
+    }
+
+    public function createAllocationPreview()
+    {
+        if (!$this->requireAdminLogin()) return redirect()->to('/AdminController/login');
+        try {
+            $runId = (new AllocationService())->createPreview((int) session()->get('admin_id'));
+            return redirect()->to('/AdminController/allocation?run=' . $runId)->with('success', '分發預覽已建立，確認結果後再正式發布。');
+        } catch (\Throwable $e) {
+            return redirect()->to('/AdminController/allocation')->with('error', $e->getMessage());
+        }
+    }
+
+    public function publishAllocation($runId)
+    {
+        if (!$this->requireAdminLogin()) return redirect()->to('/AdminController/login');
+        $note = trim((string) $this->request->getPost('revision_note'));
+        if (!(new AllocationService())->publish((int) $runId, $note)) {
+            return redirect()->to('/AdminController/allocation?run=' . (int) $runId)->with('error', '只有尚未發布的預覽可以發布。');
+        }
+        return redirect()->to('/AdminController/allocation?run=' . (int) $runId)->with('success', '分發結果已正式發布，學生現在可以查榜。');
     }
 
     public function profile()

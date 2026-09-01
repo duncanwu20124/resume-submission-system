@@ -25,6 +25,8 @@
         <div class="sys-navbar__user">
             <span id="admin-session-nav-countdown" class="admin-session-nav-countdown" aria-label="管理員登入剩餘時間">05:00</span>
             <a class="sys-navbar__link" href="/AdminController/preferences">志願序管理</a>
+            <a class="sys-navbar__link" href="/AdminController/scoring">學生評分</a>
+            <a class="sys-navbar__link" href="/AdminController/allocation">分發管理</a>
             <a class="sys-navbar__link" href="/AdminController/announcements">公告管理</a>
             <a class="sys-navbar__link" href="/AdminController/profile">我的帳號</a>
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
