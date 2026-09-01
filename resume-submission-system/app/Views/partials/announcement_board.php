@@ -61,6 +61,11 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
         margin-right: 0.4rem;
     }
 
+    .announce-marquee__track li a {
+        color: inherit;
+        text-decoration: none;
+    }
+
     .announce-marquee__track a,
     .announce-list__item-content a {
         color: inherit;
@@ -113,6 +118,20 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
         padding: 0.15rem 0 0.15rem 0.85rem;
     }
 
+    .announce-list__item-link {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+        border-radius: 0.35rem;
+        padding: 0.15rem 0.35rem 0.15rem 0;
+    }
+
+    .announce-list__item-link:hover,
+    .announce-list__item-link:focus-visible {
+        background: #f8fafc;
+        outline: none;
+    }
+
     .announce-list__item-title {
         font-weight: 700;
         color: #0f172a;
@@ -142,11 +161,15 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
                 公告
             </span>
             <div class="announce-marquee__track">
-                <ul>
-                    <?php foreach (array_merge($marqueeAnnouncements, $marqueeAnnouncements) as $item): ?>
-                        <li><strong><?= esc($item['title']) ?></strong><?= \App\Support\AnnouncementLink::renderContent((string) $item['content']) ?></li>
-                    <?php endforeach; ?>
-                </ul>
+                    <ul>
+                        <?php foreach (array_merge($marqueeAnnouncements, $marqueeAnnouncements) as $item): ?>
+                        <li>
+                            <a href="<?= site_url('announcement/' . (int) $item['id']) ?>">
+                                <strong><?= esc($item['title']) ?></strong><?= esc($item['content']) ?>
+                            </a>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
             </div>
         </div>
     <?php endif; ?>
@@ -157,16 +180,18 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l9.586-9.586z"></path></svg>
                 最新公告
             </div>
-            <ul>
-                <?php foreach ($listAnnouncements as $item): ?>
-                    <li>
-                        <div class="announce-list__item-title"><?= esc($item['title']) ?></div>
-                        <div class="announce-list__item-content"><?= \App\Support\AnnouncementLink::renderContent((string) $item['content']) ?></div>
-                        <?php if (!empty($item['created_at'])): ?>
-                            <div class="announce-list__item-date"><?= esc($item['created_at']) ?></div>
-                        <?php endif; ?>
-                    </li>
-                <?php endforeach; ?>
+                <ul>
+                    <?php foreach ($listAnnouncements as $item): ?>
+                        <li>
+                            <a class="announce-list__item-link" href="<?= site_url('announcement/' . (int) $item['id']) ?>">
+                                <div class="announce-list__item-title"><?= esc($item['title']) ?></div>
+                                <div class="announce-list__item-content"><?= esc($item['content']) ?></div>
+                                <?php if (!empty($item['created_at'])): ?>
+                                    <div class="announce-list__item-date"><?= esc($item['created_at']) ?></div>
+                                <?php endif; ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
             </ul>
         </section>
     <?php endif; ?>
