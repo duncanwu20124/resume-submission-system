@@ -19,6 +19,7 @@ $isActive = static function (string $path) use ($currentPath): bool {
     <nav class="admin-sidebar__nav">
         <a class="admin-sidebar__link <?= $isActive('AdminController') ? 'admin-sidebar__link--active' : '' ?>" href="/index.php/AdminController">管理首頁</a>
         <a class="admin-sidebar__link <?= $isActive('AdminController/preferences') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/preferences">志願序管理</a>
+        <a class="admin-sidebar__link <?= $isActive('AdminController/pdfDuplicates') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/pdfDuplicates">PDF 重複檢查</a>
         <a class="admin-sidebar__link <?= $isActive('AdminController/scoring') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/scoring">學生評分</a>
         <a class="admin-sidebar__link <?= $isActive('AdminController/allocation') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/allocation">分發管理</a>
         <a class="admin-sidebar__link <?= $isActive('AdminController/announcements') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/announcements">公告管理</a>

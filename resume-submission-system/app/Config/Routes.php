@@ -61,6 +61,7 @@ $routes->post('AdminController/createAnnouncement', 'AdminController::createAnno
 $routes->post('AdminController/toggleAnnouncement/(:num)', 'AdminController::toggleAnnouncement/$1');
 $routes->post('AdminController/deleteAnnouncement/(:num)', 'AdminController::deleteAnnouncement/$1');
 $routes->get('AdminController/preferences', 'AdminController::preferences');
+$routes->get('AdminController/pdfDuplicates', 'AdminController::pdfDuplicates');
 $routes->get('AdminController/preferences/(:num)', 'AdminController::preferenceDetail/$1');
 $routes->post('AdminController/preferences/(:num)/reset', 'AdminController::resetPreference/$1');
 $routes->get('AdminController/scoring', 'AdminController::scoring');
