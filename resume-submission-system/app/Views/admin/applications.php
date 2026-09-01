@@ -22,7 +22,8 @@
     </div>
 </header>
 
-<main class="admin-shell">
+<main class="admin-shell admin-shell--with-sidebar">
+    <?= view('partials/admin_sidebar') ?>
     <div class="page-header">
         <h2 class="page-header__title">正式報名資料管理</h2>
     </div>

@@ -30,7 +30,8 @@
     </div>
 </header>
 
-<main class="admin-shell">
+<main class="admin-shell admin-shell--with-sidebar">
+    <?= view('partials/admin_sidebar') ?>
     <div class="page-header">
         <h2 class="page-header__title">申請者詳細資料：<?= esc($user['name']) ?></h2>
         <div class="page-header__actions">

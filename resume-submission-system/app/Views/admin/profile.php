@@ -20,7 +20,8 @@
     </div>
 </header>
 
-<main class="admin-shell admin-shell--narrow">
+<main class="admin-shell admin-shell--narrow admin-shell--with-sidebar">
+    <?= view('partials/admin_sidebar') ?>
     <div class="page-header">
         <h2 class="page-header__title">我的帳號</h2>
     </div>
