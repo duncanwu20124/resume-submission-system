@@ -27,6 +27,7 @@ $routes->group('student', function ($routes) {
     $routes->get('preferences', 'Student\PreferenceController::index', ['filter' => 'student_auth']);
     $routes->post('preferences', 'Student\PreferenceController::save', ['filter' => 'student_auth']);
     $routes->get('preferences/receipt', 'Student\PreferenceController::receipt', ['filter' => 'student_auth']);
+    $routes->get('result', 'Student\ResultController::index', ['filter' => 'student_auth']);
 });
 
 // 管理員端
@@ -62,3 +63,8 @@ $routes->post('AdminController/deleteAnnouncement/(:num)', 'AdminController::del
 $routes->get('AdminController/preferences', 'AdminController::preferences');
 $routes->get('AdminController/preferences/(:num)', 'AdminController::preferenceDetail/$1');
 $routes->post('AdminController/preferences/(:num)/reset', 'AdminController::resetPreference/$1');
+$routes->get('AdminController/scoring', 'AdminController::scoring');
+$routes->post('AdminController/scoring/(:num)', 'AdminController::saveScore/$1');
+$routes->get('AdminController/allocation', 'AdminController::allocation');
+$routes->post('AdminController/allocation/preview', 'AdminController::createAllocationPreview');
+$routes->post('AdminController/allocation/(:num)/publish', 'AdminController::publishAllocation/$1');

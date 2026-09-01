@@ -113,6 +113,10 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
         gap: 0.85rem;
     }
 
+    .announce-list__page[hidden] {
+        display: none;
+    }
+
     .announce-list li {
         border-left: 3px solid #4f46e5;
         padding: 0.15rem 0 0.15rem 0.85rem;
@@ -151,6 +155,47 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
         font-size: 0.75rem;
         margin-top: 0.25rem;
     }
+
+    .announce-list__pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 1.1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .announce-list__page-button {
+        min-width: 2.25rem;
+        height: 2.25rem;
+        padding: 0 0.65rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.5rem;
+        background: #ffffff;
+        color: #475569;
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .announce-list__page-button:hover {
+        border-color: #4f46e5;
+        color: #4338ca;
+    }
+
+    .announce-list__page-button[aria-current="page"] {
+        border-color: #4f46e5;
+        background: #4f46e5;
+        color: #ffffff;
+    }
+
+    .announce-list__page-button:focus-visible {
+        outline: 3px solid rgba(79, 70, 229, 0.25);
+        outline-offset: 2px;
+    }
 </style>
 
 <div class="announce-board">
@@ -175,13 +220,14 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
     <?php endif; ?>
 
     <?php if (!empty($listAnnouncements)): ?>
-        <section class="announce-list" aria-label="公告事項">
+        <section class="announce-list" aria-label="公告事項" data-announcement-list>
             <div class="announce-list__title">
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l9.586-9.586z"></path></svg>
                 最新公告
             </div>
-                <ul>
-                    <?php foreach ($listAnnouncements as $item): ?>
+            <?php foreach (array_chunk($listAnnouncements, 5) as $pageIndex => $pageItems): ?>
+                <ul class="announce-list__page" data-announcement-page="<?= $pageIndex + 1 ?>" <?= $pageIndex === 0 ? '' : 'hidden' ?>>
+                    <?php foreach ($pageItems as $item): ?>
                         <li>
                             <a class="announce-list__item-link" href="<?= site_url('announcement/' . (int) $item['id']) ?>">
                                 <div class="announce-list__item-title"><?= esc($item['title']) ?></div>
@@ -192,8 +238,48 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
                             </a>
                         </li>
                     <?php endforeach; ?>
-            </ul>
+                </ul>
+            <?php endforeach; ?>
+
+            <?php $pageCount = (int) ceil(count($listAnnouncements) / 5); ?>
+            <?php if ($pageCount > 1): ?>
+                <nav class="announce-list__pagination" aria-label="公告分頁">
+                    <?php for ($page = 1; $page <= $pageCount; $page++): ?>
+                        <button
+                            type="button"
+                            class="announce-list__page-button"
+                            data-announcement-page-button="<?= $page ?>"
+                            aria-label="前往公告第 <?= $page ?> 頁"
+                            <?= $page === 1 ? 'aria-current="page"' : '' ?>
+                        ><?= $page ?></button>
+                    <?php endfor; ?>
+                </nav>
+            <?php endif; ?>
         </section>
     <?php endif; ?>
 </div>
+<script>
+    document.querySelectorAll('[data-announcement-list]').forEach((list) => {
+        const pages = list.querySelectorAll('[data-announcement-page]');
+        const buttons = list.querySelectorAll('[data-announcement-page-button]');
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetPage = button.dataset.announcementPageButton;
+
+                pages.forEach((page) => {
+                    page.hidden = page.dataset.announcementPage !== targetPage;
+                });
+
+                buttons.forEach((pageButton) => {
+                    if (pageButton === button) {
+                        pageButton.setAttribute('aria-current', 'page');
+                    } else {
+                        pageButton.removeAttribute('aria-current');
+                    }
+                });
+            });
+        });
+    });
+</script>
 <?php endif; ?>
