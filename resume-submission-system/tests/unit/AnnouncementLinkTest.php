@@ -38,6 +38,18 @@ final class AnnouncementLinkTest extends TestCase
         );
     }
 
+    public function testRendersBareDocumentUrlAsClickableLink(): void
+    {
+        $url = 'https://www.cac.edu.tw/star116/document/TelcLowest_Star116_asdf_20260831.pdf';
+
+        $rendered = AnnouncementLink::renderContent("文件網址：\n{$url}");
+
+        $this->assertStringContainsString(
+            '<a href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $url . '</a>',
+            $rendered
+        );
+    }
+
     public function testEscapesUnsafeMarkdownLinksAsPlainText(): void
     {
         $rendered = AnnouncementLink::renderContent('[危險連結](javascript:alert(1))');

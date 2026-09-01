@@ -26,29 +26,46 @@ final class AnnouncementLink
 
     public static function renderContent(string $content): string
     {
-        $pattern = '/\[([^\]\r\n]+)\]\(([^)\r\n]+)\)/u';
+        $pattern = '/\[([^\]\r\n]+)\]\(([^)\r\n]+)\)|(https?:\/\/[^\s<]+)/u';
         $rendered = '';
         $offset   = 0;
 
         while (preg_match($pattern, $content, $matches, PREG_OFFSET_CAPTURE, $offset) === 1) {
             $fullMatch  = $matches[0][0];
             $matchStart = $matches[0][1];
-            $url        = self::normalizeUrl($matches[2][0]);
 
             $rendered .= self::escape(substr($content, $offset, $matchStart - $offset));
 
-            if ($url === null) {
-                $rendered .= self::escape($matches[1][0]);
+            if ($matches[1][1] !== -1) {
+                $url   = self::normalizeUrl($matches[2][0]);
+                $label = $matches[1][0];
+
+                $rendered .= $url === null
+                    ? self::escape($label)
+                    : self::link($url, $label);
             } else {
-                $rendered .= '<a href="' . self::escape($url) . '" target="_blank" rel="noopener noreferrer">'
-                    . self::escape($matches[1][0])
-                    . '</a>';
+                $rawUrl = $matches[3][0];
+                $url    = rtrim($rawUrl, ".,!?;:)]");
+                $suffix = substr($rawUrl, strlen($url));
+
+                $rendered .= self::link($url, $url) . self::escape($suffix);
             }
 
             $offset = $matchStart + strlen($fullMatch);
         }
 
         return $rendered . self::escape(substr($content, $offset));
+    }
+
+    private static function link(string $url, string $label): string
+    {
+        $safeUrl = self::normalizeUrl($url);
+
+        return $safeUrl === null
+            ? self::escape($label)
+            : '<a href="' . self::escape($safeUrl) . '" target="_blank" rel="noopener noreferrer">'
+                . self::escape($label)
+                . '</a>';
     }
 
     private static function escape(string $value): string
