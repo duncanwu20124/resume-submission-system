@@ -61,6 +61,14 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
         margin-right: 0.4rem;
     }
 
+    .announce-marquee__track a,
+    .announce-list__item-content a {
+        color: inherit;
+        font-weight: 700;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
     @keyframes announce-scroll {
         0%   { transform: translateX(0); }
         100% { transform: translateX(-50%); }
@@ -136,7 +144,7 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
             <div class="announce-marquee__track">
                 <ul>
                     <?php foreach (array_merge($marqueeAnnouncements, $marqueeAnnouncements) as $item): ?>
-                        <li><strong><?= esc($item['title']) ?></strong><?= esc($item['content']) ?></li>
+                        <li><strong><?= esc($item['title']) ?></strong><?= \App\Support\AnnouncementLink::renderContent((string) $item['content']) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -153,7 +161,7 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
                 <?php foreach ($listAnnouncements as $item): ?>
                     <li>
                         <div class="announce-list__item-title"><?= esc($item['title']) ?></div>
-                        <div class="announce-list__item-content"><?= esc($item['content']) ?></div>
+                        <div class="announce-list__item-content"><?= \App\Support\AnnouncementLink::renderContent((string) $item['content']) ?></div>
                         <?php if (!empty($item['created_at'])): ?>
                             <div class="announce-list__item-date"><?= esc($item['created_at']) ?></div>
                         <?php endif; ?>

@@ -799,6 +799,13 @@ body {
   white-space: pre-wrap;
 }
 
+.announcement-item__content a {
+  color: var(--sys-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .announcement-item__meta {
   margin-top: 10px;
   font-size: 0.8rem;

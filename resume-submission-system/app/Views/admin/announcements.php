@@ -57,7 +57,8 @@
 
                 <div class="form-field">
                     <label for="content">公告內容</label>
-                    <textarea id="content" name="content" required placeholder="請輸入公告內容"></textarea>
+                    <textarea id="content" name="content" required placeholder="請輸入公告內容，可包含文件連結"></textarea>
+                    <p class="form-hint">文件連結請使用 <code>[連結文字](https://example.com/file.pdf)</code> 格式，發布後會變成可點擊連結並在新分頁開啟。</p>
                 </div>
 
                 <div class="form-field">
@@ -101,7 +102,7 @@
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="announcement-item__content"><?= esc($item['content']) ?></div>
+                            <div class="announcement-item__content"><?= \App\Support\AnnouncementLink::renderContent((string) $item['content']) ?></div>
                             <div class="announcement-item__meta">
                                 發布時間：<?= esc($item['created_at'] ?? '-') ?>
                             </div>
