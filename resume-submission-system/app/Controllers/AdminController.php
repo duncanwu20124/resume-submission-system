@@ -48,6 +48,39 @@ class AdminController extends BaseController
         return redirect()->to($redirect)->with('error', '表單驗證已失效，請重新整理頁面後再試。');
     }
 
+    private function sanitizeDownloadFileName(string $fileName): string
+    {
+        $safeName = basename($fileName);
+        $safeName = preg_replace('/[\x00-\x1F\x7F"\\\\]/u', '_', $safeName) ?? '';
+
+        return trim($safeName) !== '' ? $safeName : 'resume';
+    }
+
+    private function resolveUploadedFilePath(string $fileName): ?string
+    {
+        $uploadDirectory = realpath(WRITEPATH . 'uploads');
+        $safeName = basename($fileName);
+
+        if ($uploadDirectory === false || $safeName === '' || $safeName !== $fileName) {
+            return null;
+        }
+
+        $resolvedPath = realpath($uploadDirectory . DIRECTORY_SEPARATOR . $safeName);
+
+        if ($resolvedPath === false || !is_file($resolvedPath) || dirname($resolvedPath) !== $uploadDirectory) {
+            return null;
+        }
+
+        return $resolvedPath;
+    }
+
+    private function csvSafeValue($value): string
+    {
+        $value = (string) $value;
+
+        return preg_match('/^\s*[=+\-@]/u', $value) === 1 ? "'" . $value : $value;
+    }
+
     private function renderAdminView(string $view, array $data = []): string
     {
         return view($view, $data);
@@ -620,12 +653,12 @@ class AdminController extends BaseController
 
         foreach ($users as $user) {
             fputcsv($stream, [
-                $user['student_id'],
-                $user['name'],
-                $user['email'],
-                empty($user['file_name']) ? '尚未上傳' : '已上傳',
-                $user['file_name'] ?? '',
-                $user['uploaded_at'] ?? '',
+                $this->csvSafeValue($user['student_id'] ?? ''),
+                $this->csvSafeValue($user['name'] ?? ''),
+                $this->csvSafeValue($user['email'] ?? ''),
+                $this->csvSafeValue(empty($user['file_name']) ? '尚未上傳' : '已上傳'),
+                $this->csvSafeValue($user['file_name'] ?? ''),
+                $this->csvSafeValue($user['uploaded_at'] ?? ''),
             ]);
         }
 
@@ -685,8 +718,8 @@ class AdminController extends BaseController
                 : null;
 
             if ($content === false || $content === null) {
-                $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
-                $content = is_file($filePath) ? file_get_contents($filePath) : null;
+                $filePath = $this->resolveUploadedFilePath((string) $user['file_name']);
+                $content = $filePath !== null ? @file_get_contents($filePath) : null;
             }
 
             if ($content === false || $content === null) {
@@ -759,17 +792,19 @@ class AdminController extends BaseController
 
         $content = null;
         if (!empty($user['file_content'])) {
-            $content = base64_decode($user['file_content']);
+            $content = base64_decode($user['file_content'], true);
+            if ($content === false) {
+                return redirect()->to('/AdminController')->with('error', '履歷內容異常，無法預覽。');
+            }
         } else {
-            $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
-            if (file_exists($filePath) && is_file($filePath)) {
-                $content = file_get_contents($filePath);
+            $filePath = $this->resolveUploadedFilePath((string) $user['file_name']);
+            if ($filePath !== null) {
+                $content = @file_get_contents($filePath);
             }
         }
 
-        if ($content === null) {
-            echo '找不到指定檔案';
-            return;
+        if ($content === false || $content === null || $content === '') {
+            return redirect()->to('/AdminController')->with('error', '履歷檔案不存在或內容異常，無法預覽。');
         }
 
         $ext = strtolower(pathinfo($user['file_name'], PATHINFO_EXTENSION));
@@ -782,7 +817,7 @@ class AdminController extends BaseController
 
         return $this->response
             ->setHeader('Content-Type', $mimeType)
-            ->setHeader('Content-Disposition', 'inline; filename="' . $user['file_name'] . '"')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $this->sanitizeDownloadFileName($user['file_name']) . '"')
             ->setBody($content);
     }
 
@@ -812,8 +847,8 @@ class AdminController extends BaseController
             return $this->response->download($user['file_name'], $content);
         }
 
-        $filePath = WRITEPATH . 'uploads/' . $user['file_name'];
-        if (is_file($filePath) && is_readable($filePath)) {
+        $filePath = $this->resolveUploadedFilePath((string) $user['file_name']);
+        if ($filePath !== null && is_readable($filePath)) {
             $content = @file_get_contents($filePath);
             if ($content !== false && $content !== '') {
                 return $this->response->download($filePath, null)->setFileName($user['file_name']);
@@ -911,6 +946,12 @@ class AdminController extends BaseController
             }
         }
 
+        if (!$mailSent) {
+            session()->remove('admin_pending_reset');
+
+            return redirect()->to('/AdminController/forgotPassword')->with('error', '驗證碼寄送失敗，請確認郵件服務設定後再試。');
+        }
+
         return redirect()->to('/AdminController/verifyResetCode')->with('success', '密碼重設驗證碼已成功寄出至 ' . esc($email) . '，請前往信箱查收。');
     }
 
@@ -974,6 +1015,7 @@ class AdminController extends BaseController
             return redirect()->to('/AdminController/forgotPassword')->with('error', '請重新申請重設密碼。');
         }
 
+        $previousPending = $pending;
         $newCode = $this->generateAdminRegistrationCode();
         $pending['code'] = $newCode;
         $pending['expires_at'] = time() + 900;
@@ -987,8 +1029,15 @@ class AdminController extends BaseController
                    "若非您本人操作，請忽略此信件。";
 
         $resend = new \App\Libraries\ResendMailer();
+        $mailSent = false;
         if ($resend->isConfigured()) {
-            $resend->send($pending['email'], $subject, $message);
+            $mailSent = $resend->send($pending['email'], $subject, $message);
+        }
+
+        if (!$mailSent) {
+            session()->set('admin_pending_reset', $previousPending);
+
+            return redirect()->to('/AdminController/verifyResetCode')->with('error', '新的驗證碼寄送失敗，請稍後再試。');
         }
 
         return redirect()->to('/AdminController/verifyResetCode')->with('success', '新的重設驗證碼已寄出至 ' . esc($pending['email']) . '，請前往信箱查收。');

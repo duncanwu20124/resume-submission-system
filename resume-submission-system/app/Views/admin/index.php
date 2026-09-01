@@ -351,7 +351,10 @@
             fetch('/AdminController/keepAlive', {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                },
                 body: '_admin_csrf=' + encodeURIComponent((document.querySelector('input[name="_admin_csrf"]') || {}).value || ''),
             })
                 .then(function (response) {

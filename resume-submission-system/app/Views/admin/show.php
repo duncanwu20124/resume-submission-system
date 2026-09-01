@@ -114,6 +114,7 @@
 </main>
 
 <script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
+<input type="hidden" name="_admin_csrf" value="">
 
 <div id="admin-session-warning" class="admin-session-warning" hidden role="alertdialog" aria-modal="true" aria-labelledby="admin-session-warning-title" tabindex="-1">
     <div class="admin-session-warning__dialog">
@@ -146,7 +147,10 @@
             fetch('/AdminController/keepAlive', {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                },
                 body: '_admin_csrf=' + encodeURIComponent((document.querySelector('input[name="_admin_csrf"]') || {}).value || ''),
             })
                 .then(function (response) {

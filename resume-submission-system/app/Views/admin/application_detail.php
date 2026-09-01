@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的帳號 - 學生甄選與志願媒合系統</title>
+    <title><?= esc($application['name']) ?> - 報名資料</title>
     <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>">
 </head>
 <body>
@@ -14,7 +14,9 @@
             <h1 class="sys-navbar__title">管理員系統</h1>
         </div>
         <div class="sys-navbar__user">
-            <a class="sys-navbar__link" href="/AdminController">返回資料清單</a>
+            <a class="sys-navbar__link" href="/AdminController/applications">返回報名資料</a>
+            <span id="admin-session-nav-countdown" class="admin-session-nav-countdown" aria-label="管理員登入剩餘時間">05:00</span>
+            <a class="sys-navbar__link" href="/AdminController/profile">我的帳號</a>
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
         </div>
     </div>
@@ -22,56 +24,44 @@
 
 <main class="admin-shell admin-shell--narrow">
     <div class="page-header">
-        <h2 class="page-header__title">我的帳號</h2>
+        <h2 class="page-header__title">單筆報名資料</h2>
     </div>
 
-    <?php if (!empty($error)): ?>
-        <div class="alert alert--error" role="alert"><?= esc($error) ?></div>
-    <?php endif; ?>
-    <?php if ($success = session()->getFlashdata('success')): ?>
-        <div class="alert alert--success" role="status"><?= esc($success) ?></div>
-    <?php endif; ?>
-
-    <div class="auth-box">
-        <form action="/AdminController/profile" method="POST">
-            <input type="hidden" name="_admin_csrf" value="">
-            <div class="form-field">
-                <label for="name">管理員姓名</label>
-                <input id="name" type="text" name="name" value="<?= esc($admin['name']) ?>" maxlength="50" autocomplete="name" required autofocus>
-            </div>
-
-            <div class="form-field">
-                <label for="username">管理員帳號</label>
-                <input id="username" type="text" value="<?= esc($admin['username']) ?>" autocomplete="username" disabled>
-            </div>
-
-            <div class="form-field">
-                <label for="employee_id">員工證編號</label>
-                <input id="employee_id" type="text" value="<?= esc($admin['employee_id']) ?>" disabled>
-            </div>
-
-            <div class="form-field">
-                <label for="email">Email</label>
-                <input id="email" type="email" name="email" value="<?= esc($admin['email']) ?>" autocomplete="email" required>
-            </div>
-
-            <div class="form-field">
-                <label for="password">新密碼</label>
-                <input id="password" type="password" name="password" minlength="6" autocomplete="new-password" aria-describedby="password-hint">
-                <p class="form-hint" id="password-hint">若不修改密碼請留白，修改時至少需要 6 個字元。</p>
-            </div>
-
-            <div class="form-field">
-                <label for="password_confirm">確認新密碼</label>
-                <input id="password_confirm" type="password" name="password_confirm" minlength="6" autocomplete="new-password">
-            </div>
-
-            <button class="btn btn--primary btn--block" type="submit">儲存變更</button>
-        </form>
-    </div>
+    <section class="detail-card" aria-labelledby="application-detail-heading">
+        <div class="detail-card__header" id="application-detail-heading">基本資料</div>
+        <table class="detail-table">
+            <tbody>
+                <tr>
+                    <th scope="row">學號 Student ID</th>
+                    <td><?= esc($application['id']) ?></td>
+                </tr>
+                <tr>
+                    <th scope="row">使用者姓名</th>
+                    <td><?= esc($application['name']) ?></td>
+                </tr>
+                <tr>
+                    <th scope="row">Email</th>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <th scope="row">電話</th>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <th scope="row">選填校系資料</th>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="detail-card__footer">
+            <p class="form-hint">此資料目前只有姓名與學號 Student ID，其餘報名內容尚未建立。</p>
+            <a class="btn btn--secondary" href="/AdminController/applications">返回清單</a>
+        </div>
+    </section>
 </main>
 
 <script src="<?= base_url('assets/js/admin-security.js') ?>"></script>
+<input type="hidden" name="_admin_csrf" value="">
 
 <div id="admin-session-warning" class="admin-session-warning" hidden role="alertdialog" aria-modal="true" aria-labelledby="admin-session-warning-title" tabindex="-1">
     <div class="admin-session-warning__dialog">
@@ -87,11 +77,17 @@
         const warning = document.getElementById('admin-session-warning');
         const countdown = document.getElementById('admin-session-countdown');
         const continueButton = document.getElementById('admin-session-continue');
+        const navCountdown = document.getElementById('admin-session-nav-countdown');
 
-        if (!lastActivity || !warning || !countdown || !continueButton) {
+        if (!lastActivity || !warning || !countdown || !continueButton || !navCountdown) {
             return;
         }
 
+        const formatTime = function (seconds) {
+            const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const remainder = (seconds % 60).toString().padStart(2, '0');
+            return minutes + ':' + remainder;
+        };
         const showWarningAfter = Math.max(0, ((lastActivity + 300) * 1000) - Date.now());
         let countdownTimer;
         let redirectTimer;
@@ -127,25 +123,6 @@
                 });
         };
 
-        const showWarning = function () {
-            warning.hidden = false;
-            warning.focus();
-            let seconds = 30;
-            countdown.textContent = seconds;
-            countdownTimer = window.setInterval(function () {
-                seconds -= 1;
-                countdown.textContent = seconds;
-
-                if (seconds <= 0) {
-                    window.clearInterval(countdownTimer);
-                }
-            }, 1000);
-
-            redirectTimer = window.setTimeout(function () {
-                window.location.replace('/AdminController/login');
-            }, 30000);
-        };
-
         continueButton.addEventListener('click', continueSession);
         warning.addEventListener('click', function (event) {
             if (event.target === warning) {
@@ -153,7 +130,33 @@
             }
         });
 
-        window.setTimeout(showWarning, showWarningAfter);
+        const updateNavCountdown = function () {
+            const remaining = Math.max(0, (lastActivity + 300) - Math.floor(Date.now() / 1000));
+            navCountdown.textContent = formatTime(remaining);
+            if (remaining > 0) {
+                window.setTimeout(updateNavCountdown, 1000);
+            }
+        };
+        updateNavCountdown();
+
+        window.setTimeout(function () {
+            warning.hidden = false;
+            warning.focus();
+            let seconds = 30;
+            countdown.textContent = seconds;
+            navCountdown.textContent = formatTime(seconds);
+            countdownTimer = window.setInterval(function () {
+                seconds -= 1;
+                countdown.textContent = seconds;
+                navCountdown.textContent = formatTime(Math.max(0, seconds));
+                if (seconds <= 0) {
+                    window.clearInterval(countdownTimer);
+                }
+            }, 1000);
+            redirectTimer = window.setTimeout(function () {
+                window.location.replace('/AdminController/login');
+            }, 30000);
+        }, showWarningAfter);
     }());
 </script>
 
