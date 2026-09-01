@@ -295,7 +295,6 @@
     <main>
         <div class="hero-container">
             <h1 class="hero-title">歡迎使用履歷上傳與管理系統</h1>
-            <p class="hero-subtitle">請選擇您的身分存取系統功能。學生可上傳與管理履歷檔案；管理員可檢閱與下載審核。</p>
 
             <?= $this->include('partials/announcement_board') ?>
 
