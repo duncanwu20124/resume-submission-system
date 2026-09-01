@@ -642,6 +642,7 @@
                 <span><?= esc($student['name'] ?? $student['student_name'] ?? '') ?> (<?= esc($student['student_id'] ?? '') ?>)</span>
             </div>
             <a href="<?= site_url('student/preferences') ?>" class="nav-link">志願序填寫</a>
+            <a href="<?= site_url('student/result') ?>" class="nav-link">分發結果</a>
             <a href="<?= site_url('student/logout') ?>" class="btn-logout">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                 登出 (Logout)
