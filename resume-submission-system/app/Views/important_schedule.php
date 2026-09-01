@@ -164,7 +164,7 @@
     <article class="page-card">
         <p class="eyebrow">招生資訊</p>
         <h1>重要時程</h1>
-        <p class="intro">以下為本機練習系統目前設定的履歷與志願序時程，實際招生日期請以承辦單位最新公告為準。</p>
+        <p class="intro">實際招生日期請以承辦單位最新公告為準。</p>
 
         <?php if (($officialHasData ?? false) === false): ?>
             <div class="official-notice" role="status">
