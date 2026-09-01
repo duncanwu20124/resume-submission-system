@@ -63,13 +63,70 @@
                 <label for="keyword">搜尋姓名或學號</label>
                 <input id="keyword" type="search" name="keyword" value="<?= esc($keyword) ?>" placeholder="請輸入姓名或學號 Student ID">
             </div>
+            <div class="search-group search-group--select">
+                <label for="school">篩選學校（任一志願）</label>
+                <select id="school" name="school">
+                    <option value="">全部學校</option>
+                    <?php foreach ($universities as $university): ?>
+                        <option value="<?= esc($university) ?>" <?= $school === $university ? 'selected' : '' ?>><?= esc($university) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="search-group search-group--select">
+                <label for="sort">排序方式</label>
+                <select id="sort" name="sort">
+                    <?php foreach ($sort_options as $value => $label): ?>
+                        <option value="<?= esc($value) ?>" <?= $sort === $value ? 'selected' : '' ?>><?= esc($label) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="search-actions">
                 <button class="btn btn--primary" type="submit">搜尋</button>
-                <?php if ($keyword !== ''): ?>
+                <?php if ($keyword !== '' || $school !== '' || $sort !== 'submitted_at_desc'): ?>
                     <a class="btn btn--secondary" href="/AdminController/preferences">清除搜尋</a>
                 <?php endif; ?>
             </div>
         </form>
+    </section>
+
+    <section class="admin-panel" aria-labelledby="school-stats-heading">
+        <div class="admin-panel__header">
+            <h3 class="admin-panel__title" id="school-stats-heading">各校志願填寫統計</h3>
+            <span class="table-meta__count">以所有已送出志願序計算</span>
+        </div>
+        <div class="admin-panel__body admin-panel__body--flush">
+            <?php if (!empty($school_stats)): ?>
+                <div class="table-container table-container--flat">
+                    <table class="data-table school-stats-table">
+                        <thead>
+                            <tr>
+                                <th>學校</th>
+                                <th>第 1 志願</th>
+                                <th>第 2 志願</th>
+                                <th>第 3 志願</th>
+                                <th>第 4 志願</th>
+                                <th>第 5 志願</th>
+                                <th>第 6 志願</th>
+                                <th>填寫總人數</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($school_stats as $stat): ?>
+                                <tr>
+                                    <td class="col-school" data-label="學校"><?= esc($stat['school']) ?></td>
+                                    <?php for ($rank = 1; $rank <= 6; $rank++): ?>
+                                        <td data-label="第 <?= $rank ?> 志願"><?= esc($stat['rank_' . $rank]) ?></td>
+                                    <?php endfor; ?>
+                                    <td class="col-total" data-label="填寫總人數"><?= esc($stat['total']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <p class="table-empty">目前尚無已送出的志願序統計資料。</p>
+            <?php endif; ?>
+        </div>
     </section>
 
     <section aria-label="志願序清單">
@@ -84,7 +141,7 @@
                     <tr>
                         <th style="width: 140px;">學號</th>
                         <th style="width: 130px;">姓名</th>
-                        <th>第一志願</th>
+                        <th>完整志願序（1～6）</th>
                         <th style="width: 160px;">送出時間</th>
                         <th style="width: 110px; text-align: center;">操作</th>
                     </tr>
@@ -95,7 +152,20 @@
                             <tr>
                                 <td class="col-id" data-label="學號"><?= esc($row['student_number']) ?></td>
                                 <td class="col-name" data-label="姓名"><?= esc($row['student_name']) ?></td>
-                                <td data-label="第一志願"><?= esc($row['choice_1']) ?></td>
+                                <td data-label="完整志願序">
+                                    <ol class="preference-ranks">
+                                        <?php for ($rank = 1; $rank <= 6; $rank++): ?>
+                                            <?php $choice = trim((string) $row['choice_' . $rank]); ?>
+                                            <?php if ($choice === ''): ?>
+                                                <?php continue; ?>
+                                            <?php endif; ?>
+                                            <li>
+                                                <span class="preference-rank-number"><?= $rank ?></span>
+                                                <span><?= esc($choice) ?></span>
+                                            </li>
+                                        <?php endfor; ?>
+                                    </ol>
+                                </td>
                                 <td class="col-time" data-label="送出時間"><?= esc($row['submitted_at']) ?></td>
                                 <td class="col-actions" data-label="操作">
                                     <div class="table-actions">

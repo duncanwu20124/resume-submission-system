@@ -258,6 +258,10 @@ body {
   padding: 18px;
 }
 
+.admin-panel__body--flush {
+  padding: 0;
+}
+
 /* ==========================================================================
    搜尋區塊
    ========================================================================== */
@@ -453,6 +457,12 @@ body {
   overflow-x: auto;
 }
 
+.table-container--flat {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -510,6 +520,47 @@ body {
 .data-table .col-actions {
   white-space: nowrap;
   text-align: center;
+}
+
+.school-stats-table .col-school {
+  min-width: 190px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.school-stats-table .col-total {
+  font-weight: 700;
+  color: var(--sys-primary);
+}
+
+.preference-ranks {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 280px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preference-ranks li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.35;
+}
+
+.preference-rank-number {
+  display: inline-flex;
+  flex: 0 0 22px;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sys-primary-light);
+  color: var(--sys-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .data-table .col-select {
@@ -1062,6 +1113,17 @@ body {
     max-width: 100%;
     flex-direction: column;
     align-items: flex-end;
+  }
+
+  .preference-ranks {
+    min-width: 0;
+    width: 100%;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .school-stats-table td:not(.col-school) {
+    font-variant-numeric: tabular-nums;
   }
 
   .data-table td.table-empty {

@@ -2,11 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Config\Universities;
 use App\Controllers\BaseController;
 use App\Models\AdminModel;
 use App\Models\AnnouncementModel;
 use App\Models\StudentPreferenceModel;
 use App\Models\UserModel;
+use App\Support\PreferenceAnalytics;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -400,18 +402,20 @@ class AdminController extends BaseController
         $rows      = $prefModel->listWithStudents();
 
         $keyword = trim((string) $this->request->getGet('keyword'));
-        if ($keyword !== '') {
-            $rows = array_values(array_filter($rows, static function (array $row) use ($keyword): bool {
-                return mb_stripos($row['student_name'], $keyword) !== false
-                    || mb_stripos($row['student_number'], $keyword) !== false;
-            }));
-        }
+        $school  = trim((string) $this->request->getGet('school'));
+        $sort    = PreferenceAnalytics::normalizeSort((string) $this->request->getGet('sort'));
+        $rows    = PreferenceAnalytics::filterAndSort($rows, $keyword, $school, $sort);
 
         return $this->renderAdminView('admin/preferences', [
             'preferences'     => $rows,
             'keyword'         => $keyword,
+            'school'          => $school,
+            'sort'            => $sort,
+            'universities'    => Universities::names(),
+            'sort_options'    => PreferenceAnalytics::sortOptions(),
+            'school_stats'    => PreferenceAnalytics::schoolCounts($prefModel->listWithStudents()),
             'total_students'  => (new UserModel())->countAll(),
-            'submitted_count' => $prefModel->countAll(),
+            'submitted_count' => $prefModel->countSubmitted(),
         ]);
     }
 

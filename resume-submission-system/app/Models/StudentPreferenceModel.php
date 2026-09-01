@@ -153,4 +153,9 @@ class StudentPreferenceModel extends Model
             ->orderBy('student_preferences.submitted_at', 'DESC')
             ->findAll();
     }
+
+    public function countSubmitted(): int
+    {
+        return $this->where('status', self::STATUS_SUBMITTED)->countAllResults();
+    }
 }
