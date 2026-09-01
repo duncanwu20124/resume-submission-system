@@ -19,16 +19,16 @@ final class PreferenceAnalyticsTest extends TestCase
         self::assertSame(['A001', 'A002'], array_column($filtered, 'student_number'));
     }
 
-    public function testSortsRowsByRequestedField(): void
+    public function testSortsRowsBySubmittedTime(): void
     {
         $rows = [
             $this->row('A002', '李小華', ['國立政治大學'], '2026-09-01 10:00:00'),
             $this->row('A001', '王小明', ['國立臺灣大學'], '2026-09-01 11:00:00'),
         ];
 
-        $sorted = PreferenceAnalytics::filterAndSort($rows, '', '', 'student_number_asc');
+        $sorted = PreferenceAnalytics::filterAndSort($rows, '', '', 'submitted_at_asc');
 
-        self::assertSame(['A001', 'A002'], array_column($sorted, 'student_number'));
+        self::assertSame(['A002', 'A001'], array_column($sorted, 'student_number'));
     }
 
     public function testCountsEachSchoolByRankAndTotal(): void
@@ -50,6 +50,23 @@ final class PreferenceAnalyticsTest extends TestCase
             'rank_6' => 0,
             'total' => 2,
         ], $counts[0]);
+    }
+
+    public function testSortsSchoolCountsByTotal(): void
+    {
+        $counts = [
+            ['school' => '甲大學', 'rank_1' => 0, 'rank_2' => 0, 'rank_3' => 0, 'rank_4' => 0, 'rank_5' => 0, 'rank_6' => 0, 'total' => 1],
+            ['school' => '乙大學', 'rank_1' => 0, 'rank_2' => 0, 'rank_3' => 0, 'rank_4' => 0, 'rank_5' => 0, 'rank_6' => 0, 'total' => 3],
+        ];
+
+        self::assertSame(['乙大學', '甲大學'], array_column(
+            PreferenceAnalytics::sortSchoolCounts($counts, 'school_count_desc'),
+            'school'
+        ));
+        self::assertSame(['甲大學', '乙大學'], array_column(
+            PreferenceAnalytics::sortSchoolCounts($counts, 'school_count_asc'),
+            'school'
+        ));
     }
 
     private function row(string $number, string $name, array $choices, string $submittedAt = '2026-09-01 12:00:00'): array

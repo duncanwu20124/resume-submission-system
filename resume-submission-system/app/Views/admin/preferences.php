@@ -60,10 +60,6 @@
 
     <section class="search-box" aria-label="志願序搜尋">
         <form class="search-box__form" action="/AdminController/preferences" method="GET">
-            <div class="search-group search-group--input">
-                <label for="keyword">搜尋姓名或學號</label>
-                <input id="keyword" type="search" name="keyword" value="<?= esc($keyword) ?>" placeholder="請輸入姓名或學號 Student ID">
-            </div>
             <div class="search-group search-group--select">
                 <label for="school">篩選學校（任一志願）</label>
                 <select id="school" name="school">
@@ -83,7 +79,7 @@
             </div>
             <div class="search-actions">
                 <button class="btn btn--primary" type="submit">搜尋</button>
-                <?php if ($keyword !== '' || $school !== '' || $sort !== 'submitted_at_desc'): ?>
+                <?php if ($school !== '' || $sort !== 'school_count_desc'): ?>
                     <a class="btn btn--secondary" href="/AdminController/preferences">清除搜尋</a>
                 <?php endif; ?>
             </div>

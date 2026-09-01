@@ -8,11 +8,10 @@ final class PreferenceAnalytics
      * @var array<string, array{field: string, direction: string, label: string}>
      */
     private const SORT_OPTIONS = [
+        'school_count_desc'  => ['field' => 'school_count', 'direction' => 'desc', 'label' => '填寫人數（多到少）'],
+        'school_count_asc'   => ['field' => 'school_count', 'direction' => 'asc', 'label' => '填寫人數（少到多）'],
         'submitted_at_desc'  => ['field' => 'submitted_at', 'direction' => 'desc', 'label' => '送出時間（新到舊）'],
         'submitted_at_asc'   => ['field' => 'submitted_at', 'direction' => 'asc', 'label' => '送出時間（舊到新）'],
-        'student_number_asc' => ['field' => 'student_number', 'direction' => 'asc', 'label' => '學號（小到大）'],
-        'student_name_asc'   => ['field' => 'student_name', 'direction' => 'asc', 'label' => '姓名（正序）'],
-        'choice_1_asc'       => ['field' => 'choice_1', 'direction' => 'asc', 'label' => '第一志願（正序）'],
     ];
 
     /**
@@ -64,7 +63,7 @@ final class PreferenceAnalytics
 
     public static function normalizeSort(string $sort): string
     {
-        return isset(self::SORT_OPTIONS[$sort]) ? $sort : 'submitted_at_desc';
+        return isset(self::SORT_OPTIONS[$sort]) ? $sort : 'school_count_desc';
     }
 
     /**
@@ -122,6 +121,25 @@ final class PreferenceAnalytics
         $counts = array_values($counts);
         usort($counts, static function (array $left, array $right): int {
             return $right['total'] <=> $left['total']
+                ?: strcmp($left['school'], $right['school']);
+        });
+
+        return $counts;
+    }
+
+    /**
+     * @param array<int, array{school: string, rank_1: int, rank_2: int, rank_3: int, rank_4: int, rank_5: int, rank_6: int, total: int}> $counts
+     * @return array<int, array{school: string, rank_1: int, rank_2: int, rank_3: int, rank_4: int, rank_5: int, rank_6: int, total: int}>
+     */
+    public static function sortSchoolCounts(array $counts, string $sort): array
+    {
+        if (!in_array($sort, ['school_count_desc', 'school_count_asc'], true)) {
+            return $counts;
+        }
+
+        $direction = $sort === 'school_count_desc' ? -1 : 1;
+        usort($counts, static function (array $left, array $right) use ($direction): int {
+            return (($left['total'] <=> $right['total']) * $direction)
                 ?: strcmp($left['school'], $right['school']);
         });
 

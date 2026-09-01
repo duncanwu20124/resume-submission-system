@@ -404,19 +404,21 @@ class AdminController extends BaseController
         $prefModel = new StudentPreferenceModel();
         $rows      = $prefModel->listWithStudents();
 
-        $keyword = trim((string) $this->request->getGet('keyword'));
-        $school  = trim((string) $this->request->getGet('school'));
-        $sort    = PreferenceAnalytics::normalizeSort((string) $this->request->getGet('sort'));
-        $rows    = PreferenceAnalytics::filterAndSort($rows, $keyword, $school, $sort);
+        $school = trim((string) $this->request->getGet('school'));
+        $sort   = PreferenceAnalytics::normalizeSort((string) $this->request->getGet('sort'));
+        $rows   = PreferenceAnalytics::filterAndSort($rows, '', $school, $sort);
+        $schoolStats = PreferenceAnalytics::sortSchoolCounts(
+            PreferenceAnalytics::schoolCounts($prefModel->listWithStudents()),
+            $sort
+        );
 
         return $this->renderAdminView('admin/preferences', [
             'preferences'     => $rows,
-            'keyword'         => $keyword,
             'school'          => $school,
             'sort'            => $sort,
             'universities'    => Universities::names(),
             'sort_options'    => PreferenceAnalytics::sortOptions(),
-            'school_stats'    => PreferenceAnalytics::schoolCounts($prefModel->listWithStudents()),
+            'school_stats'    => $schoolStats,
             'total_students'  => (new UserModel())->countAll(),
             'submitted_count' => $prefModel->countSubmitted(),
         ]);
