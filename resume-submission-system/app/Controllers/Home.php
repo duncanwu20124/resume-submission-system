@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Config\ImportantSchedule;
 use App\Models\AnnouncementModel;
 
 class Home extends BaseController
@@ -25,5 +26,14 @@ class Home extends BaseController
         }
 
         return view('announcement_detail', ['announcement' => $announcement]);
+    }
+
+    public function schedule(): string
+    {
+        return view('important_schedule', [
+            'scheduleItems'   => ImportantSchedule::ITEMS,
+            'officialSource'  => ImportantSchedule::OFFICIAL_SOURCE,
+            'officialHasData' => false,
+        ]);
     }
 }

@@ -4,6 +4,7 @@ use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
 $routes->get('/', 'Home::index');
+$routes->get('schedule', 'Home::schedule');
 $routes->get('announcement/(:num)', 'Home::announcement/$1');
 
 $routes->group('student', function ($routes) {
