@@ -102,6 +102,23 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
         font-weight: 700;
         color: #312e81;
         margin-bottom: 0.9rem;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .announce-list__title::-webkit-details-marker {
+        display: none;
+    }
+
+    .announce-list__title::after {
+        content: '⌄';
+        margin-left: auto;
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+
+    .announce-list[open] .announce-list__title::after {
+        content: '⌃';
     }
 
     .announce-list ul {
@@ -220,11 +237,11 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
     <?php endif; ?>
 
     <?php if (!empty($listAnnouncements)): ?>
-        <section class="announce-list" aria-label="公告事項" data-announcement-list>
-            <div class="announce-list__title">
+        <details class="announce-list" aria-label="公告事項" data-announcement-list>
+            <summary class="announce-list__title">
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l9.586-9.586z"></path></svg>
                 最新公告
-            </div>
+            </summary>
             <?php foreach (array_chunk($listAnnouncements, 5) as $pageIndex => $pageItems): ?>
                 <ul class="announce-list__page" data-announcement-page="<?= $pageIndex + 1 ?>" <?= $pageIndex === 0 ? '' : 'hidden' ?>>
                     <?php foreach ($pageItems as $item): ?>
@@ -255,7 +272,7 @@ $marqueeAnnouncements = array_values(array_filter($announcements ?? [], fn ($a) 
                     <?php endfor; ?>
                 </nav>
             <?php endif; ?>
-        </section>
+        </details>
     <?php endif; ?>
 </div>
 <script>

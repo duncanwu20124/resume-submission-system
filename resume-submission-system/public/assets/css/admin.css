@@ -348,8 +348,8 @@ body {
 
 .admin-session-nav-countdown {
   padding: 4px 8px;
-  color: #fef3c7;
-  border: 1px solid rgba(254, 243, 199, 0.45);
+  color: #fecaca;
+  border: 1px solid rgba(254, 202, 202, 0.55);
   border-radius: var(--sys-radius);
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
