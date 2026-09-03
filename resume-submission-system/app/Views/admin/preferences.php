@@ -88,8 +88,12 @@
 
     <section class="admin-panel" aria-labelledby="school-stats-heading">
         <div class="admin-panel__header">
-            <h3 class="admin-panel__title" id="school-stats-heading">各校志願填寫統計</h3>
-            <span class="table-meta__count">以所有已送出志願序計算</span>
+            <h3 class="admin-panel__title" id="school-stats-heading">
+                <?= $school !== '' ? '【' . esc($school) . '】志願填寫統計' : '各校志願填寫統計' ?>
+            </h3>
+            <span class="table-meta__count">
+                <?= $school !== '' ? '已篩選指定學校（共 1 筆）' : '以所有已送出志願序計算' ?>
+            </span>
         </div>
         <div class="admin-panel__body admin-panel__body--flush">
             <?php if (!empty($school_stats)): ?>
@@ -128,7 +132,7 @@
 
     <section aria-label="志願序清單">
         <div class="table-meta">
-            <span>僅列出已成功送出志願序的學生</span>
+            <span><?= $school !== '' ? '已篩選有選填【' . esc($school) . '】且已送出志願序的學生' : '僅列出已成功送出志願序的學生' ?></span>
             <span class="table-meta__count">共 <?= count($preferences) ?> 筆</span>
         </div>
 
@@ -156,9 +160,10 @@
                                             <?php if ($choice === ''): ?>
                                                 <?php continue; ?>
                                             <?php endif; ?>
-                                            <li>
-                                                <span class="preference-rank-number"><?= $rank ?></span>
-                                                <span><?= esc($choice) ?></span>
+                                            <?php $isMatch = ($school !== '' && $choice === $school); ?>
+                                            <li style="<?= $isMatch ? 'background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 3px 8px; font-weight: 600;' : '' ?>">
+                                                <span class="preference-rank-number" style="<?= $isMatch ? 'background: #2563eb; color: #ffffff;' : '' ?>"><?= $rank ?></span>
+                                                <span style="<?= $isMatch ? 'color: #1d4ed8;' : '' ?>"><?= esc($choice) ?></span>
                                             </li>
                                         <?php endfor; ?>
                                     </ol>
@@ -173,7 +178,9 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td class="table-empty" colspan="5">目前查無符合條件的志願序資料。</td>
+                            <td class="table-empty" colspan="5">
+                                <?= $school !== '' ? '目前無任何已送出志願序的學生將【' . esc($school) . '】列入志願。' : '目前查無符合條件的志願序資料。' ?>
+                            </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

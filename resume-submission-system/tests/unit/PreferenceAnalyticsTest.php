@@ -69,6 +69,33 @@ final class PreferenceAnalyticsTest extends TestCase
         ));
     }
 
+    public function testFilterSchoolStatsReturnsOnlySelectedSchool(): void
+    {
+        $counts = [
+            ['school' => '國立臺灣大學', 'rank_1' => 1, 'rank_2' => 1, 'rank_3' => 0, 'rank_4' => 0, 'rank_5' => 0, 'rank_6' => 0, 'total' => 2],
+            ['school' => '國立政治大學', 'rank_1' => 1, 'rank_2' => 0, 'rank_3' => 0, 'rank_4' => 0, 'rank_5' => 0, 'rank_6' => 0, 'total' => 1],
+        ];
+
+        $filtered = PreferenceAnalytics::filterSchoolStats($counts, '國立臺灣大學');
+
+        self::assertCount(1, $filtered);
+        self::assertSame('國立臺灣大學', $filtered[0]['school']);
+        self::assertSame(2, $filtered[0]['total']);
+    }
+
+    public function testFilterSchoolStatsReturnsZeroedStatsWhenSchoolNotFound(): void
+    {
+        $counts = [
+            ['school' => '國立政治大學', 'rank_1' => 1, 'rank_2' => 0, 'rank_3' => 0, 'rank_4' => 0, 'rank_5' => 0, 'rank_6' => 0, 'total' => 1],
+        ];
+
+        $filtered = PreferenceAnalytics::filterSchoolStats($counts, '國立臺灣大學');
+
+        self::assertCount(1, $filtered);
+        self::assertSame('國立臺灣大學', $filtered[0]['school']);
+        self::assertSame(0, $filtered[0]['total']);
+    }
+
     private function row(string $number, string $name, array $choices, string $submittedAt = '2026-09-01 12:00:00'): array
     {
         $choices = array_pad($choices, 6, '');

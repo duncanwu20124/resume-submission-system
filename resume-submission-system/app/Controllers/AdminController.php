@@ -403,15 +403,19 @@ class AdminController extends BaseController
         }
 
         $prefModel = new StudentPreferenceModel();
-        $rows      = $prefModel->listWithStudents();
+        $submittedRows = $prefModel->listWithStudents();
 
         $school = trim((string) $this->request->getGet('school'));
         $sort   = PreferenceAnalytics::normalizeSort((string) $this->request->getGet('sort'));
-        $rows   = PreferenceAnalytics::filterAndSort($rows, '', $school, $sort);
+        $rows   = PreferenceAnalytics::filterAndSort($submittedRows, '', $school, $sort);
         $schoolStats = PreferenceAnalytics::sortSchoolCounts(
-            PreferenceAnalytics::schoolCounts($prefModel->listWithStudents()),
+            PreferenceAnalytics::schoolCounts($submittedRows),
             $sort
         );
+
+        if ($school !== '') {
+            $schoolStats = PreferenceAnalytics::filterSchoolStats($schoolStats, $school);
+        }
 
         return $this->renderAdminView('admin/preferences', [
             'preferences'     => $rows,

@@ -147,6 +147,38 @@ final class PreferenceAnalytics
     }
 
     /**
+     * @param array<int, array{school: string, rank_1: int, rank_2: int, rank_3: int, rank_4: int, rank_5: int, rank_6: int, total: int}> $counts
+     * @return array<int, array{school: string, rank_1: int, rank_2: int, rank_3: int, rank_4: int, rank_5: int, rank_6: int, total: int}>
+     */
+    public static function filterSchoolStats(array $counts, string $school): array
+    {
+        $school = trim($school);
+        if ($school === '') {
+            return $counts;
+        }
+
+        $filtered = array_values(array_filter(
+            $counts,
+            static fn (array $stat): bool => $stat['school'] === $school
+        ));
+
+        if (!empty($filtered)) {
+            return $filtered;
+        }
+
+        return [[
+            'school' => $school,
+            'rank_1' => 0,
+            'rank_2' => 0,
+            'rank_3' => 0,
+            'rank_4' => 0,
+            'rank_5' => 0,
+            'rank_6' => 0,
+            'total'  => 0,
+        ]];
+    }
+
+    /**
      * @param array<string, mixed> $row
      */
     private static function containsSchool(array $row, string $school): bool
