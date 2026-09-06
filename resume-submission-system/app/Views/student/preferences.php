@@ -330,8 +330,9 @@
 
         <div class="page-hero">
             <h1>志願序填寫</h1>
-            <p>從下方大學列表中選擇 6 個志願，並自由拖曳或使用上下鍵調整排序。</p>
+            <p>從下方大學與學系列表中選擇 6 個志願，並自由拖曳或使用上下鍵調整排序。</p>
         </div>
+
 
         <?php if (!$isLocked): ?>
             <div class="countdown-banner" id="countdownBanner">
@@ -352,9 +353,20 @@
             <div class="card">
                 <ol class="rank-list">
                     <?php foreach ($choices as $index => $choice): ?>
+                        <?php
+                            $parts = explode(' - ', $choice, 2);
+                            $schoolPart = $parts[0] ?? $choice;
+                            $deptPart = $parts[1] ?? '';
+                        ?>
                         <li class="rank-row rank-row--locked">
                             <span class="rank-badge"><?= $index + 1 ?></span>
-                            <span class="rank-name"><?= esc($choice) ?></span>
+                            <span class="rank-name" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <strong style="color: var(--text-main);"><?= esc($schoolPart) ?></strong>
+                                <?php if ($deptPart): ?>
+                                    <span style="color: var(--text-muted);">-</span>
+                                    <span style="color: var(--primary); font-weight: 600;"><?= esc($deptPart) ?></span>
+                                <?php endif; ?>
+                            </span>
                         </li>
                     <?php endforeach; ?>
                 </ol>
@@ -377,14 +389,26 @@
                     <p class="picker-hint" style="margin-bottom: 1rem;">以下為您截止前最後儲存的草稿內容（未送出）：</p>
                     <ol class="rank-list">
                         <?php foreach ($filledChoices as $index => $choice): ?>
+                            <?php
+                                $parts = explode(' - ', $choice, 2);
+                                $schoolPart = $parts[0] ?? $choice;
+                                $deptPart = $parts[1] ?? '';
+                            ?>
                             <li class="rank-row rank-row--locked">
                                 <span class="rank-badge"><?= $index + 1 ?></span>
-                                <span class="rank-name"><?= esc($choice) ?></span>
+                                <span class="rank-name" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    <strong style="color: var(--text-main);"><?= esc($schoolPart) ?></strong>
+                                    <?php if ($deptPart): ?>
+                                        <span style="color: var(--text-muted);">-</span>
+                                        <span style="color: var(--primary); font-weight: 600;"><?= esc($deptPart) ?></span>
+                                    <?php endif; ?>
+                                </span>
                             </li>
                         <?php endforeach; ?>
                     </ol>
                 </div>
             <?php endif; ?>
+
         <?php else: ?>
             <?php if (!empty($filledChoices)): ?>
                 <div class="draft-banner">
@@ -394,7 +418,7 @@
             <?php endif; ?>
 
             <div class="rules-box">
-                <strong>填寫規則：</strong>請從左側列表選擇恰好 6 所學校加入右側志願序，可拖曳排序卡片或使用上下鍵調整順序。可先點擊「儲存草稿」保留進度，之後隨時回來繼續編輯；確認無誤後點擊「送出志願序」，<strong>送出後即無法再修改</strong>，請務必確認排序正確。
+                <strong>填寫規則：</strong>請從左側列表選擇恰好 6 個校系加入右側志願序，可拖曳排序卡片或使用上下鍵調整順序。可先點擊「儲存草稿」保留進度，之後隨時回來繼續編輯；確認無誤後點擊「送出志願序」，<strong>送出後即無法再修改</strong>，請務必確認排序正確。
             </div>
 
             <form id="preferenceForm" class="card" action="<?= site_url('student/preferences') ?>" method="post">
@@ -405,10 +429,16 @@
                 <div class="picker-grid">
                     <div>
                         <div class="picker-col-title">
-                            <span>大學列表</span>
+                            <span>選擇大學與學系</span>
                         </div>
-                        <input type="text" class="search-input" id="uniSearch" placeholder="搜尋學校名稱...">
-                        <ul class="uni-list" id="uniList"></ul>
+                        <select class="search-input" id="schoolSelect">
+                            <option value="">-- 先選擇學校（或直接在下方搜尋）--</option>
+                            <?php foreach ($universities as $uniName): ?>
+                                <option value="<?= esc($uniName) ?>"><?= esc($uniName) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <input type="text" class="search-input" id="deptSearch" placeholder="搜尋學校或學系關鍵字（例如：資工、成大、電機）...">
+                        <ul class="uni-list" id="deptList"></ul>
                     </div>
 
                     <div>
@@ -429,6 +459,7 @@
                     </div>
                 </div>
             </form>
+
         <?php endif; ?>
     </div>
 
@@ -485,14 +516,16 @@
     <?php if (!$isLocked && !$pastDeadline): ?>
     <script>
         (function () {
-            const ALL_UNIVERSITIES = <?= json_encode($universities, JSON_UNESCAPED_UNICODE) ?>;
+            const BY_SCHOOL = <?= json_encode($bySchool ?? [], JSON_UNESCAPED_UNICODE) ?>;
+            const ALL_SCHOOLS = <?= json_encode($universities ?? [], JSON_UNESCAPED_UNICODE) ?>;
             const MAX_CHOICES = 6;
 
             let selected = <?= json_encode($filledChoices, JSON_UNESCAPED_UNICODE) ?>;
             let dragIndex = null;
 
-            const uniList = document.getElementById('uniList');
-            const uniSearch = document.getElementById('uniSearch');
+            const schoolSelect = document.getElementById('schoolSelect');
+            const deptSearch = document.getElementById('deptSearch');
+            const deptList = document.getElementById('deptList');
             const selectedList = document.getElementById('selectedList');
             const selectedEmpty = document.getElementById('selectedEmpty');
             const countPill = document.getElementById('countPill');
@@ -508,18 +541,23 @@
             const infoModalCity = document.getElementById('infoModalCity');
             const infoModalClose = document.getElementById('infoModalClose');
 
-            function findUniversity(name) {
-                return ALL_UNIVERSITIES.find((u) => u.name === name);
-            }
+            function openInfoModal(choiceStr) {
+                const parts = choiceStr.split(' - ');
+                const school = parts[0] || choiceStr;
+                const dept = parts[1] || '';
 
-            function openInfoModal(name) {
-                const uni = findUniversity(name);
-                if (!uni) {
-                    return;
+                infoModalTitle.textContent = choiceStr;
+                infoModalType.textContent = dept ? '學系：' + dept : '學校：' + school;
+                
+                // 尋找名額
+                let cap = '-';
+                if (BY_SCHOOL[school]) {
+                    const found = BY_SCHOOL[school].find((d) => d.name === dept);
+                    if (found) {
+                        cap = found.capacity + ' 名';
+                    }
                 }
-                infoModalTitle.textContent = uni.name;
-                infoModalType.textContent = uni.type;
-                infoModalCity.textContent = uni.city;
+                infoModalCity.textContent = '招生名額：' + cap;
                 infoModal.classList.add('is-open');
             }
 
@@ -530,29 +568,83 @@
                 }
             });
 
-            function renderUniList() {
-                const keyword = uniSearch.value.trim();
-                uniList.innerHTML = '';
+            function renderDeptList() {
+                const selectedSchool = schoolSelect.value.trim();
+                const keyword = deptSearch.value.trim().toLowerCase();
+                deptList.innerHTML = '';
 
-                const matches = ALL_UNIVERSITIES.filter((u) => !keyword || u.name.includes(keyword));
+                let candidates = [];
 
-                if (matches.length === 0) {
+                if (selectedSchool && BY_SCHOOL[selectedSchool]) {
+                    // 特定學校
+                    BY_SCHOOL[selectedSchool].forEach((dept) => {
+                        const fullName = selectedSchool + ' - ' + dept.name;
+                        if (!keyword || fullName.toLowerCase().includes(keyword) || dept.name.toLowerCase().includes(keyword)) {
+                            candidates.push({
+                                school: selectedSchool,
+                                deptName: dept.name,
+                                capacity: dept.capacity,
+                                fullName: fullName
+                            });
+                        }
+                    });
+                } else if (keyword) {
+                    // 全校系關鍵字搜尋
+                    for (const [school, depts] of Object.entries(BY_SCHOOL)) {
+                        depts.forEach((dept) => {
+                            const fullName = school + ' - ' + dept.name;
+                            if (fullName.toLowerCase().includes(keyword) || dept.name.toLowerCase().includes(keyword)) {
+                                candidates.push({
+                                    school: school,
+                                    deptName: dept.name,
+                                    capacity: dept.capacity,
+                                    fullName: fullName
+                                });
+                            }
+                        });
+                    }
+                } else {
                     const empty = document.createElement('li');
                     empty.className = 'uni-empty';
-                    empty.textContent = '找不到符合的學校';
-                    uniList.appendChild(empty);
+                    empty.textContent = '請先從上方選擇學校，或直接在搜尋框輸入關鍵字（例如：資工、成大、電機）。';
+                    deptList.appendChild(empty);
                     return;
                 }
 
-                matches.forEach((uni) => {
-                    const picked = selected.includes(uni.name);
+                if (candidates.length === 0) {
+                    const empty = document.createElement('li');
+                    empty.className = 'uni-empty';
+                    empty.textContent = '找不到符合條件的校系。';
+                    deptList.appendChild(empty);
+                    return;
+                }
+
+                // 最多渲染 150 筆避免卡頓
+                const displayList = candidates.slice(0, 150);
+
+                displayList.forEach((item) => {
+                    const picked = selected.includes(item.fullName);
                     const li = document.createElement('li');
                     li.className = 'uni-item' + (picked ? ' is-picked' : '');
 
-                    const label = document.createElement('span');
-                    label.className = 'uni-item-name';
-                    label.textContent = uni.name;
-                    li.appendChild(label);
+                    const labelBox = document.createElement('div');
+                    labelBox.className = 'uni-item-name';
+                    labelBox.style.display = 'flex';
+                    labelBox.style.flexDirection = 'column';
+                    labelBox.style.gap = '2px';
+
+                    const mainTitle = document.createElement('span');
+                    mainTitle.style.fontWeight = '600';
+                    mainTitle.textContent = item.deptName;
+
+                    const subTitle = document.createElement('span');
+                    subTitle.style.fontSize = '0.75rem';
+                    subTitle.style.color = 'var(--text-muted)';
+                    subTitle.textContent = item.school + ' · 招生名額 ' + item.capacity + ' 名';
+
+                    labelBox.appendChild(mainTitle);
+                    labelBox.appendChild(subTitle);
+                    li.appendChild(labelBox);
 
                     const actions = document.createElement('div');
                     actions.className = 'uni-item-actions';
@@ -561,8 +653,8 @@
                     infoBtn.type = 'button';
                     infoBtn.className = 'uni-info-btn';
                     infoBtn.textContent = 'ℹ';
-                    infoBtn.setAttribute('aria-label', '查看 ' + uni.name + ' 詳細資訊');
-                    infoBtn.addEventListener('click', () => openInfoModal(uni.name));
+                    infoBtn.setAttribute('aria-label', '查看 ' + item.fullName + ' 詳細資訊');
+                    infoBtn.addEventListener('click', () => openInfoModal(item.fullName));
                     actions.appendChild(infoBtn);
 
                     const addBtn = document.createElement('button');
@@ -570,20 +662,20 @@
                     addBtn.className = 'uni-add-btn';
                     addBtn.textContent = '+';
                     addBtn.disabled = picked || selected.length >= MAX_CHOICES;
-                    addBtn.setAttribute('aria-label', '加入 ' + uni.name);
-                    addBtn.addEventListener('click', () => addChoice(uni.name));
+                    addBtn.setAttribute('aria-label', '加入 ' + item.fullName);
+                    addBtn.addEventListener('click', () => addChoice(item.fullName));
                     actions.appendChild(addBtn);
 
                     li.appendChild(actions);
-                    uniList.appendChild(li);
+                    deptList.appendChild(li);
                 });
             }
 
-            function addChoice(name) {
-                if (selected.includes(name) || selected.length >= MAX_CHOICES) {
+            function addChoice(fullName) {
+                if (selected.includes(fullName) || selected.length >= MAX_CHOICES) {
                     return;
                 }
-                selected.push(name);
+                selected.push(fullName);
                 renderAll();
             }
 
@@ -606,7 +698,7 @@
                 selectedList.innerHTML = '';
                 selectedEmpty.style.display = selected.length === 0 ? 'block' : 'none';
 
-                selected.forEach((name, index) => {
+                selected.forEach((fullName, index) => {
                     const li = document.createElement('li');
                     li.className = 'selected-item';
                     li.draggable = true;
@@ -648,10 +740,35 @@
                     badge.textContent = String(index + 1);
                     li.appendChild(badge);
 
-                    const nameEl = document.createElement('span');
-                    nameEl.className = 'selected-name';
-                    nameEl.textContent = name;
-                    li.appendChild(nameEl);
+                    const nameBox = document.createElement('div');
+                    nameBox.className = 'selected-name';
+                    nameBox.style.display = 'flex';
+                    nameBox.style.alignItems = 'center';
+                    nameBox.style.gap = '0.5rem';
+                    nameBox.style.flexWrap = 'wrap';
+
+                    const parts = fullName.split(' - ');
+                    const schoolName = parts[0] || fullName;
+                    const deptName = parts[1] || '';
+
+                    const schoolSpan = document.createElement('strong');
+                    schoolSpan.style.color = 'var(--text-main)';
+                    schoolSpan.textContent = schoolName;
+                    nameBox.appendChild(schoolSpan);
+
+                    if (deptName) {
+                        const dashSpan = document.createElement('span');
+                        dashSpan.style.color = 'var(--text-muted)';
+                        dashSpan.textContent = '-';
+                        nameBox.appendChild(dashSpan);
+
+                        const deptSpan = document.createElement('span');
+                        deptSpan.style.color = 'var(--primary)';
+                        deptSpan.style.fontWeight = '600';
+                        deptSpan.textContent = deptName;
+                        nameBox.appendChild(deptSpan);
+                    }
+                    li.appendChild(nameBox);
 
                     const actions = document.createElement('div');
                     actions.className = 'selected-actions';
@@ -661,7 +778,7 @@
                     infoBtn.className = 'icon-btn';
                     infoBtn.textContent = 'ℹ';
                     infoBtn.setAttribute('aria-label', '查看詳細資訊');
-                    infoBtn.addEventListener('click', () => openInfoModal(name));
+                    infoBtn.addEventListener('click', () => openInfoModal(fullName));
                     actions.appendChild(infoBtn);
 
                     const upBtn = document.createElement('button');
@@ -707,14 +824,15 @@
             }
 
             function renderAll() {
-                renderUniList();
+                renderDeptList();
                 renderSelectedList();
                 renderHiddenInputs();
                 countPill.textContent = '已選擇 ' + selected.length + ' / ' + MAX_CHOICES;
                 submitBtn.disabled = selected.length !== MAX_CHOICES;
             }
 
-            uniSearch.addEventListener('input', renderUniList);
+            schoolSelect.addEventListener('change', renderDeptList);
+            deptSearch.addEventListener('input', renderDeptList);
 
             draftBtn.addEventListener('click', () => {
                 actionField.value = 'draft';
@@ -740,6 +858,7 @@
             renderAll();
         })();
     </script>
+
     <?php endif; ?>
 </body>
 </html>

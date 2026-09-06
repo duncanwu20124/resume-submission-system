@@ -25,13 +25,21 @@ class AddDraftSupportToStudentPreferences extends Migration
 
         // Every row that existed before this migration was created under the
         // old "row exists = submitted" model, so backfill it as a real submission.
+        $table = $this->db->prefixTable('student_preferences');
         $this->db->query(
-            "UPDATE student_preferences SET status = 'submitted', submitted_at = created_at WHERE status = 'draft'"
+            "UPDATE {$table} SET status = 'submitted', submitted_at = created_at WHERE status = 'draft'"
         );
     }
 
     public function down()
     {
-        $this->forge->dropColumn('student_preferences', ['status', 'submitted_at']);
+        try {
+            $this->forge->dropColumn('student_preferences', 'status');
+        } catch (\Throwable $e) {
+        }
+        try {
+            $this->forge->dropColumn('student_preferences', 'submitted_at');
+        } catch (\Throwable $e) {
+        }
     }
 }

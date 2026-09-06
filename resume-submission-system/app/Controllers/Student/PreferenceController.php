@@ -26,7 +26,8 @@ class PreferenceController extends BaseController
             'isLocked'      => $isLocked,
             'choices'       => $preference ? $prefModel->choicesOf($preference) : [],
             'filledChoices' => $preference ? $prefModel->filledChoicesOf($preference) : [],
-            'universities'  => Universities::$list,
+            'universities'  => Universities::names(),
+            'bySchool'      => Universities::bySchool(),
             'deadline'      => PreferenceSettings::DEADLINE,
             'pastDeadline'  => strtotime(PreferenceSettings::DEADLINE) < time(),
         ]);
@@ -56,14 +57,15 @@ class PreferenceController extends BaseController
         }
 
         if (count(array_unique($choices)) !== count($choices)) {
-            return redirect()->to('/student/preferences')->with('error', '志願清單中有重複的學校，請確認後再送出。');
+            return redirect()->to('/student/preferences')->with('error', '志願清單中有重複的校系，請確認後再送出。');
         }
 
         foreach ($choices as $choice) {
             if (!Universities::isValid($choice)) {
-                return redirect()->to('/student/preferences')->with('error', '志願清單包含無效的學校，請重新選擇。');
+                return redirect()->to('/student/preferences')->with('error', '志願清單包含無效的校系，請重新選擇。');
             }
         }
+
 
         if ($isSubmit) {
             if (count($choices) !== StudentPreferenceModel::CHOICE_COUNT) {

@@ -96,6 +96,57 @@ final class PreferenceAnalyticsTest extends TestCase
         self::assertSame(0, $filtered[0]['total']);
     }
 
+    public function testHandlesSchoolDepartmentFormatCorrectly(): void
+    {
+        $rows = [
+            $this->row('A001', '王小明', ['國立臺灣大學 - 資訊工程學系', '國立清華大學 - 動力機械工程學系']),
+            $this->row('A002', '李小華', ['國立政治大學 - 傳播學院', '國立臺灣大學 - 電機工程學系']),
+        ];
+
+        // 依學校名稱過濾
+        $filtered = PreferenceAnalytics::filterAndSort($rows, '', '國立臺灣大學', 'submitted_at_desc');
+        self::assertSame(['A001', 'A002'], array_column($filtered, 'student_number'));
+
+        // 統計各校人數（台大應有兩位學生選填）
+        $counts = PreferenceAnalytics::schoolCounts($rows);
+        $ntuStat = array_values(array_filter($counts, fn ($s) => $s['school'] === '國立臺灣大學'))[0];
+        self::assertSame(2, $ntuStat['total']);
+        self::assertSame(1, $ntuStat['rank_1']);
+        self::assertSame(1, $ntuStat['rank_2']);
+    }
+
+    public function testFiltersByDepartmentKeyword(): void
+    {
+        $rows = [
+            $this->row('A001', '王小明', ['國立臺灣大學 - 資訊工程學系', '國立清華大學 - 動力機械工程學系']),
+            $this->row('A002', '李小華', ['國立政治大學 - 傳播學院', '國立臺灣大學 - 電機工程學系']),
+        ];
+
+        // 依學系關鍵字過濾（例如「資訊工程」）
+        $filtered = PreferenceAnalytics::filterAndSort($rows, '', '', 'submitted_at_desc', '資訊工程');
+        self::assertSame(['A001'], array_column($filtered, 'student_number'));
+
+        // 依學系關鍵字過濾（例如「電機」）
+        $filtered2 = PreferenceAnalytics::filterAndSort($rows, '', '', 'submitted_at_desc', '電機');
+        self::assertSame(['A002'], array_column($filtered2, 'student_number'));
+    }
+
+    public function testFiltersByNameOrStudentNumberKeyword(): void
+    {
+        $rows = [
+            $this->row('A001', '王小明', ['國立臺灣大學 - 資訊工程學系']),
+            $this->row('A002', '李小華', ['國立政治大學 - 傳播學院']),
+        ];
+
+        $byName = PreferenceAnalytics::filterAndSort($rows, '小明', '', 'submitted_at_desc');
+        self::assertSame(['A001'], array_column($byName, 'student_number'));
+
+        $byNumber = PreferenceAnalytics::filterAndSort($rows, 'A002', '', 'submitted_at_desc');
+        self::assertSame(['A002'], array_column($byNumber, 'student_number'));
+    }
+
+
+
     private function row(string $number, string $name, array $choices, string $submittedAt = '2026-09-01 12:00:00'): array
     {
         $choices = array_pad($choices, 6, '');

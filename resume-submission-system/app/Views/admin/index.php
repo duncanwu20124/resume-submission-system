@@ -12,6 +12,17 @@
 </head>
 <body>
 
+<?php
+$currentRole = $current_admin_role ?? (string) (session()->get('admin_role') ?: 'admin');
+$isAdminOrAbove = in_array($currentRole, ['super_admin', 'admin'], true);
+$isSuper = ($currentRole === 'super_admin');
+$roleLabelMap = [
+    'super_admin' => '超級管理員',
+    'admin' => '一般管理員',
+    'reviewer' => '審查委員',
+];
+$roleName = $roleLabelMap[$currentRole] ?? '管理員';
+?>
 <header class="sys-navbar">
     <div class="sys-navbar__inner">
         <div class="sys-navbar__brand">
@@ -20,14 +31,22 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
             </svg>
             <h1 class="sys-navbar__title">管理員系統</h1>
-            <span class="sys-navbar__badge">Admin Portal</span>
+            <span class="role-badge role-badge--<?= esc($currentRole) ?>"><?= esc($roleName) ?></span>
         </div>
         <div class="sys-navbar__user">
             <span id="admin-session-nav-countdown" class="admin-session-nav-countdown" aria-label="管理員登入剩餘時間">05:00</span>
-            <a class="sys-navbar__link" href="/AdminController/preferences">志願序管理</a>
+            <?php if ($isSuper): ?>
+                <a class="sys-navbar__link" href="/AdminController/admins">管理員帳號</a>
+                <a class="sys-navbar__link" href="/AdminController/auditLogs">操作日誌</a>
+            <?php endif; ?>
+            <?php if ($isAdminOrAbove): ?>
+                <a class="sys-navbar__link" href="/AdminController/preferences">志願序管理</a>
+            <?php endif; ?>
             <a class="sys-navbar__link" href="/AdminController/scoring">學生評分</a>
-            <a class="sys-navbar__link" href="/AdminController/allocation">分發管理</a>
-            <a class="sys-navbar__link" href="/AdminController/announcements">公告管理</a>
+            <?php if ($isAdminOrAbove): ?>
+                <a class="sys-navbar__link" href="/AdminController/allocation">分發管理</a>
+                <a class="sys-navbar__link" href="/AdminController/announcements">公告管理</a>
+            <?php endif; ?>
             <a class="sys-navbar__link" href="/AdminController/profile">我的帳號</a>
             <a class="sys-navbar__link sys-navbar__link--btn" href="/AdminController/logout">登出</a>
         </div>
@@ -166,7 +185,9 @@
                 <?php if ($hasFilters): ?>
                     <a class="btn btn--secondary" href="/AdminController">清除搜尋</a>
                 <?php endif; ?>
-                <a class="btn btn--secondary" href="/AdminController/export?<?= esc($filterQueryString) ?>">匯出資料</a>
+                <?php if ($isAdminOrAbove): ?>
+                    <a class="btn btn--secondary" href="/AdminController/export?<?= esc($filterQueryString) ?>">匯出資料</a>
+                <?php endif; ?>
             </div>
         </form>
     </section>
@@ -184,6 +205,7 @@
             <span class="table-meta__count">目前顯示 <?= count($users ?? []) ?> 筆，共 <?= esc($total_filtered ?? 0) ?> 筆</span>
         </div>
 
+        <?php if ($isAdminOrAbove): ?>
         <form action="/AdminController/batchDownload" method="POST" id="batch-download-form" onsubmit="return confirmBatchDownload(this);">
             <input type="hidden" name="_admin_csrf" value="">
             <div class="batch-toolbar">
@@ -193,12 +215,15 @@
                     <button class="btn btn--primary" type="submit">批次下載</button>
                 </div>
             </div>
+        <?php endif; ?>
 
         <div class="table-container">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 42px; text-align: center;">選取</th>
+                        <?php if ($isAdminOrAbove): ?>
+                            <th style="width: 42px; text-align: center;">選取</th>
+                        <?php endif; ?>
                         <th style="width: 140px;">學號 Student ID</th>
                         <th style="width: 130px;">使用者姓名</th>
                         <th>Email</th>
@@ -211,13 +236,15 @@
                     <?php if (!empty($users)): ?>
                         <?php foreach ($users as $user): ?>
                             <tr>
-                                <td class="col-select" data-label="選取">
-                                    <?php if (!empty($user['file_name'])): ?>
-                                        <input type="checkbox" name="selected_ids[]" value="<?= esc($user['id']) ?>" class="resume-checkbox" aria-label="選取 <?= esc($user['name']) ?> 的履歷">
-                                    <?php else: ?>
-                                        —
-                                    <?php endif; ?>
-                                </td>
+                                <?php if ($isAdminOrAbove): ?>
+                                    <td class="col-select" data-label="選取">
+                                        <?php if (!empty($user['file_name'])): ?>
+                                            <input type="checkbox" name="selected_ids[]" value="<?= esc($user['id']) ?>" class="resume-checkbox" aria-label="選取 <?= esc($user['name']) ?> 的履歷">
+                                        <?php else: ?>
+                                            —
+                                        <?php endif; ?>
+                                    </td>
+                                <?php endif; ?>
                                 <td class="col-id" data-label="學號 Student ID"><?= esc($user['student_id']) ?></td>
                                 <td class="col-name" data-label="使用者姓名"><?= esc($user['name']) ?></td>
                                 <td class="col-email" data-label="Email"><?= esc($user['email']) ?></td>
@@ -242,13 +269,15 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td class="table-empty" colspan="7">查無符合條件之資料。請調整搜尋條件後重試。</td>
+                            <td class="table-empty" colspan="<?= $isAdminOrAbove ? 7 : 6 ?>">查無符合條件之資料。請調整搜尋條件後重試。</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
+        <?php if ($isAdminOrAbove): ?>
         </form>
+        <?php endif; ?>
 
         <?php if (isset($pager) && $pager->getPageCount() > 1): ?>
             <nav class="pagination" aria-label="資料分頁">

@@ -18,6 +18,8 @@ final class StudentFileContentTest extends CIUnitTestCase
     use DatabaseTestTrait;
 
     protected $namespace = null; // pick up App\Database\Migrations (students table)
+    protected $migrateOnce = true;
+    protected $refresh = false;
 
     public function testBinaryFileContentSurvivesRoundTripThroughSqlite(): void
     {

@@ -3,7 +3,7 @@
 <nav class="nav"><div><a href="/student/dashboard">學生首頁</a><a href="/student/preferences">我的志願序</a><strong>分發結果</strong></div></nav><main class="shell"><div class="card"><h1>我的分發結果</h1>
 <?php if (!$run): ?><div class="result"><h2>結果尚未公布</h2><p>分發結果尚未正式發布，請留意最新公告。</p></div>
 <?php elseif (!$result): ?><div class="result unassigned"><h2>本批次無您的分發資料</h2><p>可能是志願尚未正式送出或評分尚未確認，請洽管理員。</p></div>
-<?php elseif ($result['result_status']==='admitted'): ?><div class="result"><p>恭喜錄取</p><div class="school"><?= esc($result['university_name_snapshot']) ?></div><p class="rank">第 <?= (int)$result['preference_rank'] ?> 志願</p></div>
+<?php elseif ($result['result_status']==='admitted'): ?><?php $parts = explode(' - ', (string)$result['university_name_snapshot'], 2); $schoolPart = $parts[0] ?? $result['university_name_snapshot']; $deptPart = $parts[1] ?? ''; ?><div class="result"><p>恭喜錄取</p><div class="school"><?php if ($deptPart): ?><span><?= esc($schoolPart) ?></span><span style="color: #4f46e5;"> - <?= esc($deptPart) ?></span><?php else: ?><span><?= esc($schoolPart) ?></span><?php endif; ?></div><p class="rank">第 <?= (int)$result['preference_rank'] ?> 志願</p></div>
 <?php else: ?><div class="result unassigned"><h2>本次未分發</h2><p><?= esc($result['reason']) ?></p></div><?php endif; ?>
 <?php if ($run && $result): ?><p class="meta">個人總分：<?= esc($result['score_snapshot']) ?>　結果發布時間：<?= esc($run['published_at']) ?></p><?php endif; ?>
 <?php if ($choices): ?><h2>您送出的志願序</h2><ol class="choices"><?php foreach($choices as $choice): ?><li><?= esc($choice) ?></li><?php endforeach; ?></ol><?php endif; ?>
