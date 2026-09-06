@@ -27,6 +27,7 @@ $routes->group('student', function ($routes) {
     $routes->get('preferences', 'Student\PreferenceController::index', ['filter' => 'student_auth']);
     $routes->post('preferences', 'Student\PreferenceController::save', ['filter' => 'student_auth']);
     $routes->get('preferences/receipt', 'Student\PreferenceController::receipt', ['filter' => 'student_auth']);
+    $routes->get('feedback', 'Student\FeedbackController::index', ['filter' => 'student_auth']);
     $routes->get('result', 'Student\ResultController::index', ['filter' => 'student_auth']);
 });
 
