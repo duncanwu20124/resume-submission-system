@@ -159,6 +159,7 @@ class DemoFeedbackSeeder extends Seeder
         $studentBuilder = $db
             ->table('students')
             ->select('id, student_id, name, email')
+            ->where('student_id !=', '615415015')
             ->orderBy('id', 'ASC');
 
         if (!empty($existingStudentIds)) {
