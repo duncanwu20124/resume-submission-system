@@ -5,8 +5,264 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>使用回饋表 | 學生履歷管理系統</title>
-
     <style>
+        /* ===== 智慧填寫小幫手 ===== */
+        .guide-robot-button {
+            position: fixed;
+            right: 28px;
+            bottom: 28px;
+            z-index: 1001;
+
+            width: 68px;
+            height: 68px;
+            padding: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+
+            border: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #4338ca);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, .4);
+
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .guide-robot-button:hover {
+            transform: translateY(-4px) scale(1.04);
+            background: linear-gradient(135deg, #6366f1, #4338ca);
+            box-shadow: 0 14px 34px rgba(79, 70, 229, .48);
+        }
+
+        .guide-robot-button::before {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: 1px;
+            right: 2px;
+
+            border: 3px solid white;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .guide-hint {
+            position: fixed;
+            right: 106px;
+            bottom: 42px;
+            z-index: 1000;
+
+            padding: 10px 14px;
+
+            color: #3730a3;
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .12);
+        }
+
+        .guide-panel {
+            position: fixed;
+            right: 28px;
+            bottom: 108px;
+            z-index: 1002;
+
+            width: 360px;
+            max-height: 560px;
+
+            display: none;
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 20px 55px rgba(15, 23, 42, .22);
+        }
+
+        .guide-panel.open {
+            display: flex;
+            flex-direction: column;
+            animation: guideAppear .2s ease;
+        }
+
+        @keyframes guideAppear {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .guide-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 18px 20px;
+            color: white;
+            background: linear-gradient(135deg, #4f46e5, #3730a3);
+        }
+
+        .guide-title-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .guide-avatar {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 23px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .18);
+        }
+
+        .guide-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .guide-status {
+            margin-top: 3px;
+            font-size: 12px;
+            opacity: .85;
+        }
+
+        .guide-close {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+
+            color: white;
+            font-size: 22px;
+            line-height: 1;
+
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+        }
+
+        .guide-close:hover {
+            background: rgba(255, 255, 255, .16);
+        }
+
+        .guide-messages {
+            min-height: 180px;
+            max-height: 280px;
+            padding: 18px;
+
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .guide-message {
+            max-width: 90%;
+            padding: 11px 13px;
+            margin-bottom: 10px;
+
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.6;
+
+            border: 1px solid #e2e8f0;
+            border-radius: 6px 14px 14px 14px;
+            background: white;
+        }
+
+        .guide-message.user-message {
+            margin-left: auto;
+
+            color: white;
+            border: 0;
+            border-radius: 14px 6px 14px 14px;
+            background: var(--primary);
+        }
+
+        .guide-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            padding: 15px;
+
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .guide-action-button {
+            padding: 10px 8px;
+
+            color: #4338ca;
+            font-size: 13px;
+            font-weight: 700;
+
+            border: 1px solid #c7d2fe;
+            border-radius: 9px;
+            background: #eef2ff;
+        }
+
+        .guide-action-button:hover {
+            color: white;
+            background: var(--primary);
+        }
+
+        .question.guide-highlight {
+            margin: 0 -14px;
+            padding-right: 14px;
+            padding-left: 14px;
+
+            border-radius: 12px;
+            background: #fff7ed;
+            box-shadow: 0 0 0 2px #fb923c;
+        }
+
+        @media (max-width: 600px) {
+            .guide-hint {
+                display: none;
+            }
+
+            .guide-robot-button {
+                right: 18px;
+                bottom: 18px;
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+
+            .guide-panel {
+                right: 12px;
+                bottom: 90px;
+                width: calc(100vw - 24px);
+                max-height: 70vh;
+            }
+        }
+
+        @media print {
+            .guide-robot-button,
+            .guide-panel,
+            .guide-hint {
+                display: none !important;
+            }
+        }
         :root {
             --primary: #4f46e5;
             --primary-hover: #4338ca;
@@ -524,6 +780,10 @@
             您的意見將協助我們改善學生履歷與志願填寫系統。
             評分題採五分量表，1 分表示非常不滿意，5 分表示非常滿意。
         </p>
+
+        <p style="margin-top: 10px; font-weight: 700;">
+            本問卷共 25 題：20 題使用體驗評分及 5 題文字回饋。
+        </p>
     </section>
 
     <section class="card">
@@ -554,7 +814,19 @@
         'resume_rating'     => '5. 履歷上傳、預覽與下載功能是否順暢？',
         'preference_rating' => '6. 志願序填寫功能是否容易操作？',
         'speed_rating'      => '7. 系統頁面載入與操作速度是否令人滿意？',
-        'recommend_rating'  => '8. 您是否願意推薦其他學生使用本系統？',
+        'design_rating'     => '8. 系統的版面設計與文字閱讀體驗是否令人滿意？',
+        'stability_rating'  => '9. 系統操作過程是否穩定，且少有錯誤或中斷？',
+        'security_rating'   => '10. 您對本系統保護個人資料與履歷內容是否有信心？',
+        'confidence_rating' => '11. 本系統是否能讓您有信心完成履歷與志願填寫流程？',
+        'recommend_rating'  => '12. 您是否願意推薦其他學生使用本系統？',
+        'mobile_rating'     => '13. 使用手機或不同尺寸螢幕操作本系統是否方便？',
+        'error_rating'      => '14. 系統發生輸入錯誤時，提示訊息是否清楚且容易理解？',
+        'help_rating'       => '15. 系統提供的操作說明與引導是否足夠？',
+        'workflow_rating'   => '16. 從登入到完成各項作業的整體流程是否流暢？',
+        'result_rating'     => '17. 分發結果與相關資訊的呈現方式是否清楚？',
+        'accessibility_rating' => '18. 按鈕、文字大小與色彩配置是否容易辨識與操作？',
+        'reuse_rating'      => '19. 若未來有類似需求，您是否願意再次使用本系統？',
+        'value_rating'      => '20. 您認為本系統對完成甄選相關作業是否具有實際幫助？',
     ];
 
     $ratingLabels = [
@@ -569,7 +841,9 @@
     <section class="card progress-card">
         <div class="progress-header">
             <strong>評分題填寫進度</strong>
-            <span id="progressText">已完成 0 / 8 題（0%）</span>
+            <span id="progressText">
+                已完成 0 / <?= count($questions) ?> 題（0%）
+            </span>
         </div>
 
         <div class="progress-track">
@@ -618,7 +892,7 @@
 
         <div class="question">
             <div class="question-title">
-                9. 您最常使用或認為最實用的功能是什麼？
+                21. 您最常使用或認為最實用的功能是什麼？
             </div>
 
             <div class="text-area-wrapper">
@@ -636,7 +910,7 @@
 
         <div class="question">
             <div class="question-title">
-                10. 使用過程中是否遇到任何問題？
+                22. 使用過程中是否遇到任何問題？
             </div>
 
             <div class="text-area-wrapper">
@@ -654,7 +928,25 @@
 
         <div class="question">
             <div class="question-title">
-                11. 您對本系統還有什麼改善建議？
+                23. 您希望本系統未來新增什麼功能？
+            </div>
+
+            <div class="text-area-wrapper">
+                <textarea
+                    name="desired_feature"
+                    maxlength="500"
+                    placeholder="例如：AI 履歷建議、即時客服、進度通知"
+                ></textarea>
+
+                <span class="character-count" data-count-for="desired_feature">
+                    0 / 500
+                </span>
+            </div>
+        </div>
+
+        <div class="question">
+            <div class="question-title">
+                24. 您對本系統還有什麼改善建議？
             </div>
 
             <div class="text-area-wrapper">
@@ -665,6 +957,24 @@
                 ></textarea>
 
                 <span class="character-count" data-count-for="suggestion">
+                    0 / 500
+                </span>
+            </div>
+        </div>
+
+        <div class="question">
+            <div class="question-title">
+                25. 是否還有其他使用感受或意見想告訴我們？
+            </div>
+
+            <div class="text-area-wrapper">
+                <textarea
+                    name="other_comment"
+                    maxlength="500"
+                    placeholder="此題可以留白"
+                ></textarea>
+
+                <span class="character-count" data-count-for="other_comment">
                     0 / 500
                 </span>
             </div>
@@ -739,7 +1049,264 @@
     </section>
 </main>
 
+<!-- 智慧填寫小幫手 -->
+<div id="guideHint" class="guide-hint">
+    有問題嗎？讓我協助您
+</div>
+
+<button
+    type="button"
+    id="guideRobotButton"
+    class="guide-robot-button"
+    aria-label="開啟智慧填寫小幫手"
+    aria-expanded="false"
+>
+    🤖
+</button>
+
+<aside
+    id="guidePanel"
+    class="guide-panel"
+    aria-label="智慧填寫小幫手"
+>
+    <div class="guide-header">
+        <div class="guide-title-area">
+            <div class="guide-avatar">🤖</div>
+
+            <div>
+                <div class="guide-title">智慧填寫小幫手</div>
+                <div class="guide-status">● 規則式引導｜AI 功能規劃中</div>
+            </div>
+        </div>
+
+        <button
+            type="button"
+            id="guideCloseButton"
+            class="guide-close"
+            aria-label="關閉智慧填寫小幫手"
+        >
+            ×
+        </button>
+    </div>
+
+    <div id="guideMessages" class="guide-messages">
+        <div class="guide-message">
+            您好，我是智慧填寫小幫手！我可以協助您檢查回饋表，或說明填寫方式。
+        </div>
+    </div>
+
+    <div class="guide-actions">
+        <button type="button" class="guide-action-button" data-guide-action="check">
+            ✓ 檢查填寫進度
+        </button>
+
+        <button type="button" class="guide-action-button" data-guide-action="next">
+            → 前往未填題目
+        </button>
+
+        <button type="button" class="guide-action-button" data-guide-action="rating">
+            ★ 評分方式說明
+        </button>
+
+        <button type="button" class="guide-action-button" data-guide-action="privacy">
+            🔒 回饋資料用途
+        </button>
+    </div>
+</aside>
+
 <script>
+    // ===== 智慧填寫小幫手 =====
+
+    const guideRobotButton = document.getElementById('guideRobotButton');
+    const guideCloseButton = document.getElementById('guideCloseButton');
+    const guidePanel = document.getElementById('guidePanel');
+    const guideHint = document.getElementById('guideHint');
+    const guideMessages = document.getElementById('guideMessages');
+
+    function openGuidePanel() {
+        guidePanel.classList.add('open');
+        guideRobotButton.setAttribute('aria-expanded', 'true');
+
+        if (guideHint) {
+            guideHint.style.display = 'none';
+        }
+    }
+
+    function closeGuidePanel() {
+        guidePanel.classList.remove('open');
+        guideRobotButton.setAttribute('aria-expanded', 'false');
+    }
+
+    function addGuideMessage(message, isUser = false) {
+        const messageElement = document.createElement('div');
+
+        messageElement.className = isUser
+            ? 'guide-message user-message'
+            : 'guide-message';
+
+        messageElement.textContent = message;
+        guideMessages.appendChild(messageElement);
+        guideMessages.scrollTop = guideMessages.scrollHeight;
+    }
+
+    function getRequiredRatingNames() {
+        const requiredInputs = document.querySelectorAll(
+            '#feedbackForm input[type="radio"][required]'
+        );
+
+        return [...new Set(
+            Array.from(requiredInputs).map(input => input.name)
+        )];
+    }
+
+    function getUnansweredRatingNames() {
+        return getRequiredRatingNames().filter(name => {
+            return !document.querySelector(
+                `#feedbackForm input[name="${name}"]:checked`
+            );
+        });
+    }
+
+    function getRatingProgress() {
+        const allNames = getRequiredRatingNames();
+        const unansweredNames = getUnansweredRatingNames();
+
+        return {
+            total: allNames.length,
+            completed: allNames.length - unansweredNames.length,
+            unanswered: unansweredNames
+        };
+    }
+
+    function clearGuideHighlights() {
+        document.querySelectorAll('.question.guide-highlight')
+            .forEach(question => {
+                question.classList.remove('guide-highlight');
+            });
+    }
+
+    function goToFirstUnansweredQuestion() {
+        clearGuideHighlights();
+
+        const unansweredNames = getUnansweredRatingNames();
+
+        if (unansweredNames.length === 0) {
+            addGuideMessage(
+                `太好了！${getRequiredRatingNames().length} 題評分題目都已完成，您可以再確認文字回饋，接著預覽填寫結果。`
+            );
+            return;
+        }
+
+        const firstInput = document.querySelector(
+            `#feedbackForm input[name="${unansweredNames[0]}"]`
+        );
+
+        if (!firstInput) {
+            return;
+        }
+
+        const questionElement = firstInput.closest('.question');
+
+        if (questionElement) {
+            questionElement.classList.add('guide-highlight');
+
+            questionElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+            window.setTimeout(() => {
+                firstInput.focus();
+            }, 500);
+        }
+
+        addGuideMessage(
+            `目前還有 ${unansweredNames.length} 題評分題目尚未完成，我已帶您前往第一題未填項目。`
+        );
+    }
+
+    function handleGuideAction(action) {
+        switch (action) {
+            case 'check': {
+                addGuideMessage('請幫我檢查目前的填寫進度。', true);
+
+                const progress = getRatingProgress();
+
+                if (progress.total === 0) {
+                    addGuideMessage('目前沒有找到需要填寫的評分題目。');
+                    return;
+                }
+
+                if (progress.unanswered.length === 0) {
+                    addGuideMessage(
+                        `您已完成全部 ${progress.total} 題評分題目！建議再檢查文字回饋，然後按下「預覽填寫結果」。`
+                    );
+                } else {
+                    addGuideMessage(
+                        `目前已完成 ${progress.completed}/${progress.total} 題，還有 ${progress.unanswered.length} 題尚未填寫。`
+                    );
+                }
+
+                break;
+            }
+
+            case 'next':
+                addGuideMessage('請帶我前往尚未填寫的題目。', true);
+                goToFirstUnansweredQuestion();
+                break;
+
+            case 'rating':
+                addGuideMessage('請說明 1～5 分的評分方式。', true);
+                addGuideMessage(
+                    '評分方式為：1 分代表非常不滿意、2 分代表不滿意、3 分代表普通、4 分代表滿意、5 分代表非常滿意。請依照您的實際使用感受作答。'
+                );
+                break;
+
+            case 'privacy':
+                addGuideMessage('我的回饋資料會如何使用？', true);
+                addGuideMessage(
+                    '回饋資料預計用於分析系統易用性、功能滿意度及改善方向。正式版本會由後端統一儲存，並限制管理者權限後才能查看。'
+                );
+                break;
+        }
+    }
+
+    guideRobotButton.addEventListener('click', function () {
+        const isOpen = guidePanel.classList.contains('open');
+
+        if (isOpen) {
+            closeGuidePanel();
+        } else {
+            openGuidePanel();
+        }
+    });
+
+    guideCloseButton.addEventListener('click', closeGuidePanel);
+
+    document.querySelectorAll('[data-guide-action]').forEach(button => {
+        button.addEventListener('click', function () {
+            handleGuideAction(this.dataset.guideAction);
+        });
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeGuidePanel();
+        }
+    });
+
+    document.querySelectorAll(
+        '#feedbackForm input[type="radio"]'
+    ).forEach(input => {
+        input.addEventListener('change', clearGuideHighlights);
+    });
+
+    // 幾秒後自動隱藏右下角提示文字
+    window.setTimeout(() => {
+        if (guideHint) {
+            guideHint.style.display = 'none';
+        }
+    }, 7000);
     const questionTitles = <?= json_encode(
         $questions,
         JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
@@ -958,11 +1525,15 @@
 
         const textAnswers = {
             favorite_feature:
-                '9. 最常使用或認為最實用的功能',
+                '21. 最常使用或認為最實用的功能',
             problem_description:
-                '10. 使用過程中遇到的問題',
+                '22. 使用過程中遇到的問題',
+            desired_feature:
+                '23. 希望未來新增的功能',
             suggestion:
-                '11. 系統改善建議'
+                '24. 系統改善建議',
+            other_comment:
+                '25. 其他使用感受或意見'
         };
 
         Object.entries(textAnswers).forEach(([name, title]) => {
