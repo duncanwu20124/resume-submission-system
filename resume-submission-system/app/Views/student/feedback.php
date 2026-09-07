@@ -598,6 +598,34 @@
             line-height: 1.6;
         }
 
+        .submission-message {
+            display: none;
+            padding: 15px 17px;
+            margin: 18px 0;
+            line-height: 1.6;
+            border-radius: 10px;
+        }
+
+        .submission-message.success {
+            display: block;
+            color: #065f46;
+            background: var(--success-light);
+            border: 1px solid #a7f3d0;
+        }
+
+        .submission-message.error {
+            display: block;
+            color: #991b1b;
+            background: var(--danger-light);
+            border: 1px solid #fecaca;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: .65;
+            transform: none;
+        }
+
         .preview-card {
             display: none;
             border-color: #a7f3d0;
@@ -855,7 +883,13 @@
         </p>
     </section>
 
-    <form id="feedbackForm" class="card">
+    <form
+        id="feedbackForm"
+        class="card"
+        method="post"
+        action="<?= site_url('student/feedback') ?>"
+    >
+        <?= csrf_field() ?>
         <h2 class="section-heading">使用體驗評分</h2>
 
         <p class="section-description">
@@ -991,7 +1025,7 @@
         </div>
 
         <p class="notice">
-            目前為前端預覽版本，回答只會暫存在此瀏覽器，尚未寫入系統資料庫。
+            填寫過程會暫存在此瀏覽器。預覽並確認內容後，仍需按下「確認並正式送出」才會寫入系統資料庫。
         </p>
     </form>
 
@@ -1001,7 +1035,7 @@
                 <h2>回饋內容確認單</h2>
 
                 <p>
-                    請確認以下內容是否正確。目前尚未正式送出至資料庫。
+                    請確認以下內容是否正確，確認後再正式送出至資料庫。
                 </p>
             </div>
 
@@ -1035,6 +1069,13 @@
 
         <div id="previewWarning" class="preview-warning"></div>
 
+        <div
+            id="submissionMessage"
+            class="submission-message"
+            role="status"
+            aria-live="polite"
+        ></div>
+
         <div id="previewContent"></div>
 
         <div class="actions preview-actions">
@@ -1044,6 +1085,10 @@
 
             <button type="button" id="printButton" class="btn btn-primary">
                 列印確認單
+            </button>
+
+            <button type="button" id="submitFeedbackButton" class="btn btn-primary">
+                確認並正式送出
             </button>
         </div>
     </section>
@@ -1339,6 +1384,12 @@
     const clearDraftButton = document.getElementById('clearDraftButton');
     const editButton = document.getElementById('editButton');
     const printButton = document.getElementById('printButton');
+    const submitFeedbackButton = document.getElementById('submitFeedbackButton');
+    const submissionMessage = document.getElementById('submissionMessage');
+    const feedbackSaveUrl = <?= json_encode(
+        site_url('student/feedback'),
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    ) ?>;
 
     const ratingNames = Object.keys(questionTitles);
 
@@ -1395,8 +1446,10 @@
     function collectFormData() {
         const data = {};
 
-        new FormData(form).forEach((value, key) => {
-            data[key] = value;
+        form.querySelectorAll(
+            'input[type="radio"]:checked, textarea'
+        ).forEach(control => {
+            data[control.name] = control.value;
         });
 
         return data;
@@ -1641,6 +1694,93 @@
 
     printButton.addEventListener('click', () => {
         window.print();
+    });
+
+    submitFeedbackButton.addEventListener('click', async () => {
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            form.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            return;
+        }
+
+        const confirmed = window.confirm(
+            '確定要正式送出這份回饋嗎？再次送出時會更新原有內容。'
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        submitFeedbackButton.disabled = true;
+        submitFeedbackButton.textContent = '正在送出…';
+        submissionMessage.className = 'submission-message';
+        submissionMessage.textContent = '';
+
+        try {
+            const response = await fetch(feedbackSaveUrl, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const responseText = await response.text();
+            let result;
+
+            try {
+                result = JSON.parse(responseText);
+            } catch (error) {
+                throw new Error(
+                    '伺服器回傳格式不正確，登入可能已逾時。'
+                );
+            }
+
+            if (!response.ok || result.success !== true) {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).join(' ')
+                    : '';
+
+                throw new Error(
+                    errorMessages
+                    || result.message
+                    || '回饋送出失敗。'
+                );
+            }
+
+            localStorage.removeItem(storageKey);
+
+            submissionMessage.className =
+                'submission-message success';
+
+            submissionMessage.textContent =
+                `${result.message} 本次平均評分為 ${result.average_score} 分。`;
+
+            submitFeedbackButton.textContent = '已成功送出';
+
+            addGuideMessage(
+                '您的回饋已正式寫入系統，感謝您協助我們改善使用體驗！'
+            );
+        } catch (error) {
+            submissionMessage.className =
+                'submission-message error';
+
+            submissionMessage.textContent =
+                error.message || '回饋送出失敗，請稍後再試。';
+
+            submitFeedbackButton.disabled = false;
+            submitFeedbackButton.textContent = '重新送出';
+        }
+
+        submissionMessage.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
     });
 
     restoreDraft();
