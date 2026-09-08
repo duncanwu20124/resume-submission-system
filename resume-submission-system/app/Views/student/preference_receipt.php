@@ -176,19 +176,27 @@
             <table class="choice-table">
                 <thead>
                     <tr>
-                        <th>順位</th>
+                        <th style="width: 70px; text-align: center;">順位</th>
                         <th>學校名稱</th>
+                        <th>學系名稱</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($choices as $index => $choice): ?>
+                        <?php
+                            $parts = explode(' - ', $choice, 2);
+                            $schoolPart = $parts[0] ?? $choice;
+                            $deptPart = $parts[1] ?? '';
+                        ?>
                         <tr>
-                            <td><?= $index + 1 ?></td>
-                            <td><?= esc($choice) ?></td>
+                            <td style="text-align: center; font-weight: 700;"><?= $index + 1 ?></td>
+                            <td><?= esc($schoolPart) ?></td>
+                            <td style="font-weight: 600;"><?= esc($deptPart ?: '—') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+
 
             <div class="receipt-footer">
                 此確認單內容根據系統資料庫紀錄自動產生，志願序一經送出即鎖定，不可修改。若對本確認單內容有任何疑義，請於分發結果公告前聯繫承辦單位確認；逾期恕不受理更正申請。<br>

@@ -5,107 +5,106 @@ namespace App\Config;
 class Universities
 {
     /**
-     * 供學生選填志願序的大學列表。city/type 為公開可查證的基本資訊，
-     * 實際招生名額、學系與報名資格請以校方最新公告之招生簡章為準。
-     *
-     * @var array<int, array{name: string, city: string, type: string}>
+     * @var array<string, array<int, array{name: string, capacity: int}>>|null
      */
-    public static array $list = [
-        ['name' => '國立臺灣大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立政治大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立清華大學', 'city' => '新竹市', 'type' => '國立'],
-        ['name' => '國立陽明交通大學', 'city' => '新竹市', 'type' => '國立'],
-        ['name' => '國立成功大學', 'city' => '臺南市', 'type' => '國立'],
-        ['name' => '國立中央大學', 'city' => '桃園市', 'type' => '國立'],
-        ['name' => '國立中山大學', 'city' => '高雄市', 'type' => '國立'],
-        ['name' => '國立中興大學', 'city' => '臺中市', 'type' => '國立'],
-        ['name' => '國立臺灣師範大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立臺灣科技大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立臺北科技大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立高雄科技大學', 'city' => '高雄市', 'type' => '國立'],
-        ['name' => '國立中正大學', 'city' => '嘉義縣', 'type' => '國立'],
-        ['name' => '國立東華大學', 'city' => '花蓮縣', 'type' => '國立'],
-        ['name' => '國立暨南國際大學', 'city' => '南投縣', 'type' => '國立'],
-        ['name' => '國立宜蘭大學', 'city' => '宜蘭縣', 'type' => '國立'],
-        ['name' => '國立聯合大學', 'city' => '苗栗縣', 'type' => '國立'],
-        ['name' => '國立雲林科技大學', 'city' => '雲林縣', 'type' => '國立'],
-        ['name' => '國立虎尾科技大學', 'city' => '雲林縣', 'type' => '國立'],
-        ['name' => '國立屏東大學', 'city' => '屏東縣', 'type' => '國立'],
-        ['name' => '國立高雄師範大學', 'city' => '高雄市', 'type' => '國立'],
-        ['name' => '國立彰化師範大學', 'city' => '彰化縣', 'type' => '國立'],
-        ['name' => '國立臺北大學', 'city' => '新北市', 'type' => '國立'],
-        ['name' => '國立臺北教育大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立臺南大學', 'city' => '臺南市', 'type' => '國立'],
-        ['name' => '國立嘉義大學', 'city' => '嘉義市', 'type' => '國立'],
-        ['name' => '國立金門大學', 'city' => '金門縣', 'type' => '國立'],
-        ['name' => '國立臺東大學', 'city' => '臺東縣', 'type' => '國立'],
-        ['name' => '國立體育大學', 'city' => '桃園市', 'type' => '國立'],
-        ['name' => '國立臺灣藝術大學', 'city' => '新北市', 'type' => '國立'],
-        ['name' => '國立高雄大學', 'city' => '高雄市', 'type' => '國立'],
-        ['name' => '國立臺北護理健康大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立臺灣海洋大學', 'city' => '基隆市', 'type' => '國立'],
-        ['name' => '國立高雄餐旅大學', 'city' => '高雄市', 'type' => '國立'],
-        ['name' => '國防醫學院', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立臺北藝術大學', 'city' => '臺北市', 'type' => '國立'],
-        ['name' => '國立臺南藝術大學', 'city' => '臺南市', 'type' => '國立'],
-        ['name' => '輔仁大學', 'city' => '新北市', 'type' => '私立'],
-        ['name' => '東吳大學', 'city' => '臺北市', 'type' => '私立'],
-        ['name' => '中原大學', 'city' => '桃園市', 'type' => '私立'],
-        ['name' => '淡江大學', 'city' => '新北市', 'type' => '私立'],
-        ['name' => '逢甲大學', 'city' => '臺中市', 'type' => '私立'],
-        ['name' => '東海大學', 'city' => '臺中市', 'type' => '私立'],
-        ['name' => '銘傳大學', 'city' => '臺北市', 'type' => '私立'],
-        ['name' => '世新大學', 'city' => '臺北市', 'type' => '私立'],
-        ['name' => '中國文化大學', 'city' => '臺北市', 'type' => '私立'],
-        ['name' => '元智大學', 'city' => '桃園市', 'type' => '私立'],
-        ['name' => '長庚大學', 'city' => '桃園市', 'type' => '私立'],
-        ['name' => '中山醫學大學', 'city' => '臺中市', 'type' => '私立'],
-        ['name' => '高雄醫學大學', 'city' => '高雄市', 'type' => '私立'],
-        ['name' => '臺北醫學大學', 'city' => '臺北市', 'type' => '私立'],
-        ['name' => '慈濟大學', 'city' => '花蓮縣', 'type' => '私立'],
-        ['name' => '亞洲大學', 'city' => '臺中市', 'type' => '私立'],
-        ['name' => '靜宜大學', 'city' => '臺中市', 'type' => '私立'],
-        ['name' => '大葉大學', 'city' => '彰化縣', 'type' => '私立'],
-        ['name' => '中國醫藥大學', 'city' => '臺中市', 'type' => '私立'],
-        ['name' => '實踐大學', 'city' => '臺北市', 'type' => '私立'],
-        ['name' => '開南大學', 'city' => '桃園市', 'type' => '私立'],
-        ['name' => '真理大學', 'city' => '新北市', 'type' => '私立'],
-        ['name' => '華梵大學', 'city' => '新北市', 'type' => '私立'],
-        ['name' => '南華大學', 'city' => '嘉義縣', 'type' => '私立'],
-        ['name' => '佛光大學', 'city' => '宜蘭縣', 'type' => '私立'],
-        ['name' => '龍華科技大學', 'city' => '桃園市', 'type' => '私立'],
-        ['name' => '明志科技大學', 'city' => '新北市', 'type' => '私立'],
-        ['name' => '崑山科技大學', 'city' => '臺南市', 'type' => '私立'],
-        ['name' => '南台科技大學', 'city' => '臺南市', 'type' => '私立'],
-        ['name' => '正修科技大學', 'city' => '高雄市', 'type' => '私立'],
-        ['name' => '樹德科技大學', 'city' => '高雄市', 'type' => '私立'],
-        ['name' => '義守大學', 'city' => '高雄市', 'type' => '私立'],
-    ];
+    private static ?array $bySchoolData = null;
 
     /**
+     * @var array<string, int>|null
+     */
+    private static ?array $capacitiesData = null;
+
+    private static function load(): void
+    {
+        if (self::$bySchoolData !== null) {
+            return;
+        }
+
+        $jsonFile = __DIR__ . '/departments.json';
+        if (file_exists($jsonFile)) {
+            $raw = json_decode((string) file_get_contents($jsonFile), true);
+            self::$bySchoolData   = $raw['bySchool'] ?? [];
+            self::$capacitiesData = $raw['capacities'] ?? [];
+        } else {
+            self::$bySchoolData   = [];
+            self::$capacitiesData = [];
+        }
+    }
+
+    /**
+     * 取得所有大專院校名稱（64 所）
      * @return string[]
      */
     public static function names(): array
     {
-        return array_column(self::$list, 'name');
-    }
-
-    public static function isValid(string $name): bool
-    {
-        return in_array($name, self::names(), true);
+        self::load();
+        return array_keys(self::$bySchoolData ?? []);
     }
 
     /**
-     * @return array{name: string, city: string, type: string}|null
+     * 取得學校與對應科系之樹狀結構
+     * @return array<string, array<int, array{name: string, capacity: int}>>
      */
-    public static function find(string $name): ?array
+    public static function bySchool(): array
     {
-        foreach (self::$list as $university) {
-            if ($university['name'] === $name) {
-                return $university;
-            }
-        }
+        self::load();
+        return self::$bySchoolData ?? [];
+    }
 
-        return null;
+    /**
+     * 取得指定學校的科系列表
+     * @return array<int, array{name: string, capacity: int}>
+     */
+    public static function departmentsOf(string $school): array
+    {
+        self::load();
+        return self::$bySchoolData[$school] ?? [];
+    }
+
+    /**
+     * 取得所有校系容量對照表
+     * @return array<string, int>
+     */
+    public static function allCapacities(): array
+    {
+        self::load();
+        return self::$capacitiesData ?? [];
+    }
+
+    /**
+     * 取得特定校系的招生名額
+     */
+    public static function capacityOf(string $choice): int
+    {
+        self::load();
+        return self::$capacitiesData[$choice] ?? 0;
+    }
+
+    /**
+     * 驗證志願是否為合法的「學校 - 科系」
+     */
+    public static function isValid(string $choice): bool
+    {
+        self::load();
+        return isset(self::$capacitiesData[$choice]);
+    }
+
+    /**
+     * 從「學校 - 科系」拆解出學校名稱
+     */
+    public static function extractSchool(string $choice): string
+    {
+        $parts = explode(' - ', $choice, 2);
+        return trim($parts[0]);
+    }
+
+    /**
+     * 從「學校 - 科系」拆解出科系名稱
+     */
+    public static function extractDepartment(string $choice): string
+    {
+        $parts = explode(' - ', $choice, 2);
+        return isset($parts[1]) ? trim($parts[1]) : '';
     }
 }
+

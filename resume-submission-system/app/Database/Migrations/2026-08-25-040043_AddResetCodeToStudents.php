@@ -23,7 +23,13 @@ class AddResetCodeToStudents extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('students', 'reset_code');
-        $this->forge->dropColumn('students', 'reset_expires_at');
+        try {
+            $this->forge->dropColumn('students', 'reset_code');
+        } catch (\Throwable $e) {
+        }
+        try {
+            $this->forge->dropColumn('students', 'reset_expires_at');
+        } catch (\Throwable $e) {
+        }
     }
 }

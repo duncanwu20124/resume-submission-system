@@ -81,12 +81,24 @@
         <div class="detail-card__header" id="pref-order-heading">志願序（共 <?= count($choices) ?> 項）</div>
         <ol class="pref-rank-list">
             <?php foreach ($choices as $index => $choice): ?>
+                <?php
+                    $parts = explode(' - ', $choice, 2);
+                    $schoolPart = $parts[0] ?? $choice;
+                    $deptPart = $parts[1] ?? '';
+                ?>
                 <li class="pref-rank-row">
                     <span class="pref-rank-badge"><?= $index + 1 ?></span>
-                    <span class="pref-rank-name"><?= esc($choice) ?></span>
+                    <span class="pref-rank-name" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <strong style="color: var(--sys-text); font-weight: 700;"><?= esc($schoolPart) ?></strong>
+                        <?php if ($deptPart): ?>
+                            <span style="color: var(--sys-text-muted);">-</span>
+                            <span style="color: var(--sys-primary); font-weight: 600;"><?= esc($deptPart) ?></span>
+                        <?php endif; ?>
+                    </span>
                 </li>
             <?php endforeach; ?>
         </ol>
+
     </section>
 
     <section class="admin-panel" aria-labelledby="pref-reset-heading">

@@ -92,10 +92,11 @@ class AllocationService
             throw new RuntimeException('以下學生尚未確認評分：' . implode('、', $missing));
         }
 
-        $capacities = [];
+        $capacities = \App\Config\Universities::allCapacities();
         foreach ((new UniversityCapacityModel())->where('is_active', 1)->findAll() as $university) {
             $capacities[$university['name']] = (int) $university['capacity'];
         }
+
         $seed = bin2hex(random_bytes(32));
         $results = $this->allocate($candidates, $capacities, $seed);
         $now = date('Y-m-d H:i:s');

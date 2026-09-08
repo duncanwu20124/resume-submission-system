@@ -6,6 +6,29 @@ $isActive = static function (string $path) use ($currentPath): bool {
 
     return $currentPath === $target || ($target !== 'AdminController' && str_starts_with($currentPath, $target . '/'));
 };
+
+$currentRole = $current_admin_role ?? (string) (session()->get('admin_role') ?: '');
+if (empty($currentRole) || !in_array($currentRole, ['super_admin', 'admin', 'reviewer'], true)) {
+    if ($adminId = session()->get('admin_id')) {
+        $dbAdmin = (new \App\Models\AdminModel())->select('role')->find($adminId);
+        if ($dbAdmin && !empty($dbAdmin['role'])) {
+            $currentRole = $dbAdmin['role'];
+            session()->set('admin_role', $currentRole);
+        }
+    }
+}
+if (empty($currentRole)) {
+    $currentRole = 'admin';
+}
+
+$roleLabelMap = [
+    'super_admin' => '超級管理員',
+    'admin' => '一般管理員',
+    'reviewer' => '審查委員',
+];
+$roleName = $roleLabelMap[$currentRole] ?? '管理員';
+$isSuper = ($currentRole === 'super_admin');
+$isAdminOrAbove = in_array($currentRole, ['super_admin', 'admin'], true);
 ?>
 
 <button class="admin-menu-toggle" id="admin-menu-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false">
@@ -15,15 +38,26 @@ $isActive = static function (string $path) use ($currentPath): bool {
 <div class="admin-sidebar-backdrop" id="admin-sidebar-backdrop" hidden></div>
 
 <aside class="admin-sidebar" id="admin-sidebar" aria-label="管理員功能選單" aria-hidden="true">
-    <div class="admin-sidebar__heading">管理功能</div>
+    <div class="admin-sidebar__heading" style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+        <span>管理功能</span>
+        <span class="role-badge role-badge--<?= esc($currentRole) ?>"><?= esc($roleName) ?></span>
+    </div>
     <nav class="admin-sidebar__nav">
         <a class="admin-sidebar__link <?= $isActive('AdminController') ? 'admin-sidebar__link--active' : '' ?>" href="/index.php/AdminController">管理首頁</a>
-        <a class="admin-sidebar__link <?= $isActive('AdminController/preferences') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/preferences">志願序管理</a>
+        <?php if ($isAdminOrAbove): ?>
+            <a class="admin-sidebar__link <?= $isActive('AdminController/preferences') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/preferences">志願序管理</a>
+        <?php endif; ?>
         <a class="admin-sidebar__link <?= $isActive('AdminController/pdfDuplicates') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/pdfDuplicates">PDF 重複檢查</a>
         <a class="admin-sidebar__link <?= $isActive('AdminController/scoring') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/scoring">學生評分</a>
-        <a class="admin-sidebar__link <?= $isActive('AdminController/feedback') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/feedback">使用回饋</a>
-        <a class="admin-sidebar__link <?= $isActive('AdminController/allocation') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/allocation">分發管理</a>
-        <a class="admin-sidebar__link <?= $isActive('AdminController/announcements') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/announcements">公告管理</a>
+        <a class="admin-sidebar__link <?= $isActive('AdminController/feedback') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/feedback">使用回饋管理</a>
+        <?php if ($isAdminOrAbove): ?>
+            <a class="admin-sidebar__link <?= $isActive('AdminController/allocation') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/allocation">分發管理</a>
+            <a class="admin-sidebar__link <?= $isActive('AdminController/announcements') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/announcements">公告管理</a>
+        <?php endif; ?>
+        <?php if ($isSuper): ?>
+            <a class="admin-sidebar__link <?= $isActive('AdminController/admins') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/admins">管理員帳號</a>
+            <a class="admin-sidebar__link <?= $isActive('AdminController/auditLogs') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/auditLogs">操作日誌</a>
+        <?php endif; ?>
         <a class="admin-sidebar__link <?= $isActive('AdminController/profile') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/profile">我的帳號</a>
     </nav>
     <div class="admin-sidebar__footer">

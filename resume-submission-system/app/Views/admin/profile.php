@@ -52,6 +52,15 @@
             </div>
 
             <div class="form-field">
+                <label>系統權限角色</label>
+                <div style="padding-top: 4px;">
+                    <span class="role-badge role-badge--<?= esc($admin['role'] ?? 'admin') ?>">
+                        <?= esc(\App\Models\AdminModel::roleLabels()[$admin['role'] ?? 'admin'] ?? ($admin['role'] ?? '一般管理員')) ?>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-field">
                 <label for="email">Email</label>
                 <input id="email" type="email" name="email" value="<?= esc($admin['email']) ?>" autocomplete="email" required>
             </div>

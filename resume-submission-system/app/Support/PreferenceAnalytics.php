@@ -18,12 +18,13 @@ final class PreferenceAnalytics
      * @param array<int, array<string, mixed>> $rows
      * @return array<int, array<string, mixed>>
      */
-    public static function filterAndSort(array $rows, string $keyword, string $school, string $sort): array
+    public static function filterAndSort(array $rows, string $keyword, string $school, string $sort, string $department = ''): array
     {
-        $keyword = mb_strtolower(trim($keyword));
-        $school  = trim($school);
+        $keyword    = mb_strtolower(trim($keyword));
+        $school     = trim($school);
+        $department = mb_strtolower(trim($department));
 
-        $filtered = array_values(array_filter($rows, static function (array $row) use ($keyword, $school): bool {
+        $filtered = array_values(array_filter($rows, static function (array $row) use ($keyword, $school, $department): bool {
             if ($keyword !== '') {
                 $searchable = mb_strtolower((string) ($row['student_name'] ?? '') . ' ' . ($row['student_number'] ?? ''));
 
@@ -36,12 +37,17 @@ final class PreferenceAnalytics
                 return false;
             }
 
+            if ($department !== '' && !self::containsDepartment($row, $department)) {
+                return false;
+            }
+
             return true;
         }));
 
         $sortConfig = self::SORT_OPTIONS[self::normalizeSort($sort)];
         $field      = $sortConfig['field'];
         $direction  = $sortConfig['direction'] === 'desc' ? -1 : 1;
+
 
         $decorated = [];
         foreach ($filtered as $index => $row) {
@@ -91,7 +97,12 @@ final class PreferenceAnalytics
             $seenInRow = [];
 
             for ($rank = 1; $rank <= 6; $rank++) {
-                $school = trim((string) ($row['choice_' . $rank] ?? ''));
+                $rawChoice = trim((string) ($row['choice_' . $rank] ?? ''));
+                if ($rawChoice === '') {
+                    continue;
+                }
+
+                $school = \App\Config\Universities::extractSchool($rawChoice);
                 if ($school === '') {
                     continue;
                 }
@@ -184,7 +195,31 @@ final class PreferenceAnalytics
     private static function containsSchool(array $row, string $school): bool
     {
         for ($rank = 1; $rank <= 6; $rank++) {
-            if (trim((string) ($row['choice_' . $rank] ?? '')) === $school) {
+            $rawChoice = trim((string) ($row['choice_' . $rank] ?? ''));
+            if ($rawChoice === '') {
+                continue;
+            }
+            $choiceSchool = \App\Config\Universities::extractSchool($rawChoice);
+            if ($choiceSchool === $school || $rawChoice === $school) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private static function containsDepartment(array $row, string $department): bool
+    {
+        for ($rank = 1; $rank <= 6; $rank++) {
+            $rawChoice = trim((string) ($row['choice_' . $rank] ?? ''));
+            if ($rawChoice === '') {
+                continue;
+            }
+            $dept = mb_strtolower(\App\Config\Universities::extractDepartment($rawChoice));
+            if ($dept !== '' && mb_strpos($dept, $department) !== false) {
                 return true;
             }
         }
@@ -192,3 +227,5 @@ final class PreferenceAnalytics
         return false;
     }
 }
+
+
