@@ -97,6 +97,111 @@
             background: #ffffff;
         }
 
+        .feedback-filter-card {
+            padding: 20px 22px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        .feedback-filter-card h3 {
+            margin: 0 0 16px;
+            color: #0f172a;
+            font-size: 18px;
+        }
+
+        .feedback-filter-form {
+            display: grid;
+            grid-template-columns: minmax(240px, 2fr) repeat(2, minmax(150px, 1fr)) auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .feedback-filter-field label {
+            display: block;
+            margin-bottom: 7px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .feedback-filter-field input,
+        .feedback-filter-field select {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            background: #ffffff;
+            outline: none;
+        }
+
+        .feedback-filter-field input:focus,
+        .feedback-filter-field select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        .feedback-filter-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-button,
+        .clear-button,
+        .export-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 15px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        .filter-button {
+            color: #ffffff;
+            border: 0;
+            background: #4f46e5;
+        }
+
+        .filter-button:hover {
+            background: #4338ca;
+        }
+
+        .clear-button {
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+        }
+
+        .clear-button:hover {
+            background: #f8fafc;
+        }
+
+        .export-button {
+            color: #047857;
+            border: 1px solid #6ee7b7;
+            background: #ecfdf5;
+        }
+
+        .export-button:hover {
+            background: #d1fae5;
+        }
+
+        .feedback-table-heading__actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .feedback-distribution h3 {
             margin: 0 0 18px;
             color: #0f172a;
@@ -266,6 +371,10 @@
             .score-list {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+
+            .feedback-filter-form {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 600px) {
@@ -275,6 +384,17 @@
 
             .score-list {
                 grid-template-columns: 1fr;
+            }
+
+            .feedback-filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .feedback-filter-actions,
+            .feedback-table-heading,
+            .feedback-table-heading__actions {
+                align-items: stretch;
+                flex-direction: column;
             }
         }
     </style>
@@ -391,14 +511,115 @@
         </div>
     </section>
 
+    <?php
+        $currentFilters = $filters ?? [
+            'keyword' => '',
+            'score'   => '',
+            'sort'    => 'latest',
+        ];
+
+        $exportQuery = http_build_query([
+            'keyword' => $currentFilters['keyword'],
+            'score'   => $currentFilters['score'],
+            'sort'    => $currentFilters['sort'],
+        ]);
+    ?>
+
+    <section class="feedback-filter-card">
+        <h3>搜尋、篩選與排序</h3>
+
+        <form
+            class="feedback-filter-form"
+            method="get"
+            action="<?= site_url('AdminController/feedback') ?>"
+        >
+            <div class="feedback-filter-field">
+                <label for="keyword">搜尋學生</label>
+                <input
+                    id="keyword"
+                    name="keyword"
+                    type="search"
+                    value="<?= esc($currentFilters['keyword']) ?>"
+                    placeholder="輸入姓名、學號或 Email"
+                >
+            </div>
+
+            <div class="feedback-filter-field">
+                <label for="score">平均分數區間</label>
+                <select id="score" name="score">
+                    <option value="">全部分數</option>
+                    <?php foreach ([5, 4, 3, 2, 1] as $score): ?>
+                        <option
+                            value="<?= $score ?>"
+                            <?= (string) $currentFilters['score'] === (string) $score
+                                ? 'selected'
+                                : '' ?>
+                        >
+                            <?= $score ?> 分區間
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="feedback-filter-field">
+                <label for="sort">排序方式</label>
+                <select id="sort" name="sort">
+                    <?php
+                        $sortOptions = [
+                            'latest'     => '送出時間：最新優先',
+                            'oldest'     => '送出時間：最舊優先',
+                            'score_high' => '平均分數：高至低',
+                            'score_low'  => '平均分數：低至高',
+                            'name_asc'   => '學生姓名：筆畫排序',
+                        ];
+                    ?>
+
+                    <?php foreach ($sortOptions as $value => $label): ?>
+                        <option
+                            value="<?= esc($value) ?>"
+                            <?= $currentFilters['sort'] === $value
+                                ? 'selected'
+                                : '' ?>
+                        >
+                            <?= esc($label) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="feedback-filter-actions">
+                <button class="filter-button" type="submit">
+                    套用條件
+                </button>
+
+                <a
+                    class="clear-button"
+                    href="<?= site_url('AdminController/feedback') ?>"
+                >
+                    清除
+                </a>
+            </div>
+        </form>
+    </section>
+
     <section class="feedback-table-card">
 
         <div class="feedback-table-heading">
             <h3>學生回饋清單</h3>
 
-            <span class="feedback-count">
-                共 <?= count($submissions ?? []) ?> 筆
-            </span>
+            <div class="feedback-table-heading__actions">
+                <span class="feedback-count">
+                    查詢結果共 <?= count($submissions ?? []) ?> 筆
+                </span>
+
+                <a
+                    class="export-button"
+                    href="<?= site_url('AdminController/feedback/export')
+                        . ($exportQuery !== '' ? '?' . esc($exportQuery) : '') ?>"
+                >
+                    匯出 CSV
+                </a>
+            </div>
         </div>
 
         <?php if (!empty($submissions)): ?>
@@ -490,7 +711,7 @@
 
             <div class="feedback-empty">
                 <span class="feedback-empty__icon">💬</span>
-                目前尚未收到任何學生回饋。
+                找不到符合條件的學生回饋。
             </div>
 
         <?php endif; ?>

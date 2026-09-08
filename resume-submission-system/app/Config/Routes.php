@@ -72,5 +72,6 @@ $routes->get('AdminController/allocation', 'AdminController::allocation');
 $routes->post('AdminController/allocation/preview', 'AdminController::createAllocationPreview');
 $routes->post('AdminController/allocation/(:num)/publish', 'AdminController::publishAllocation/$1');
 // 管理者查看使用回饋
+$routes->get('AdminController/feedback/export','AdminFeedbackController::export');
 $routes->get('AdminController/feedback','AdminFeedbackController::index');
 $routes->get('AdminController/feedback/(:num)','AdminFeedbackController::show/$1');
