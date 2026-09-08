@@ -209,11 +209,77 @@ class AdminFeedbackController extends BaseController
             $scoreDistribution[$roundedScore]++;
         }
 
+        /*
+         * 統計每一題評分題的平均分數。
+         */
+        $questionAverages = $db
+            ->table('feedback_answers')
+            ->select(
+                'question_number,
+                 question_text,
+                 AVG(rating_value) AS average_score,
+                 COUNT(id) AS answer_count'
+            )
+            ->where('answer_type', 'rating')
+            ->where('rating_value IS NOT NULL', null, false)
+            ->groupBy(['question_number', 'question_text'])
+            ->orderBy('question_number', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($questionAverages as &$questionAverage) {
+            $questionAverage['question_number'] = (int) $questionAverage['question_number'];
+            $questionAverage['average_score'] = round(
+                (float) $questionAverage['average_score'],
+                2
+            );
+            $questionAverage['answer_count'] = (int) $questionAverage['answer_count'];
+        }
+        unset($questionAverage);
+
+        $rankedQuestions = $questionAverages;
+        usort($rankedQuestions, static function (array $a, array $b): int {
+            return $b['average_score'] <=> $a['average_score'];
+        });
+
+        $bestQuestion = $rankedQuestions[0] ?? null;
+        $worstQuestion = !empty($rankedQuestions)
+            ? $rankedQuestions[count($rankedQuestions) - 1]
+            : null;
+
+        /*
+         * 以資料庫中最近有回饋的 14 天，製作每日回饋趨勢。
+         */
+        $dailyTrend = $db
+            ->table('feedback_submissions')
+            ->select(
+                'DATE(submitted_at) AS feedback_date, COUNT(id) AS total',
+                false
+            )
+            ->where('status', 'submitted')
+            ->where('submitted_at IS NOT NULL', null, false)
+            ->groupBy('DATE(submitted_at)', false)
+            ->orderBy('feedback_date', 'DESC')
+            ->limit(14)
+            ->get()
+            ->getResultArray();
+
+        $dailyTrend = array_reverse($dailyTrend);
+
+        foreach ($dailyTrend as &$day) {
+            $day['total'] = (int) $day['total'];
+        }
+        unset($day);
+
         return view('admin/feedback_index', [
             'submissions'      => $submissions,
             'statistics'       => $statistics,
             'scoreDistribution' => $scoreDistribution,
             'filters'          => $filters,
+            'questionAverages' => $questionAverages,
+            'bestQuestion'     => $bestQuestion,
+            'worstQuestion'    => $worstQuestion,
+            'dailyTrend'       => $dailyTrend,
         ]);
     }
 

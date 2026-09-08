@@ -94,7 +94,38 @@ class DemoFeedbackSeeder extends Seeder
             'very_low'  => [2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ];
 
-        /* 40 份資料的分布：5 分 4 份、4 分 18 份、3 分 12 份、2 分 5 份、1 分 1 份。 */
+        /*
+         * 題目滿意度由高至低的順序（0 代表第 1 題）。
+         * 每位學生仍使用原本評分輪廓中的同一組分數，只改變分數分配到哪一題，
+         * 因此每位學生的平均分數與 1～5 分人數分布都不會改變。
+         */
+        $questionPriority = [
+            0,  // 整體滿意度
+            4,  // 履歷上傳、預覽與下載
+            15, // 整體流程
+            16, // 分發結果呈現
+            19, // 實際幫助
+            1,  // 系統導覽
+            2,  // 資訊與說明清楚度
+            3,  // 登入與帳號功能
+            5,  // 志願序填寫
+            7,  // 版面與閱讀體驗
+            9,  // 個資保護信心
+            10, // 完成流程信心
+            18, // 再次使用意願
+            11, // 推薦意願
+            8,  // 穩定性
+            17, // 按鈕、文字與色彩辨識
+            14, // 操作說明與引導
+            13, // 錯誤提示
+            6,  // 載入速度
+            12, // 手機與不同螢幕尺寸
+        ];
+
+        /*
+         * 4000 份資料的分布：
+         * 5 分 600 份、4 分 2000 份、3 分 1000 份、2 分 320 份、1 分 80 份。
+         */
         $profilePlan = array_merge(
             array_fill(0, 600, 'excellent'),
             array_fill(0, 1000, 'good_high'),
@@ -125,18 +156,39 @@ class DemoFeedbackSeeder extends Seeder
         $db->table('feedback_answers')->emptyTable();
         $db->table('feedback_submissions')->emptyTable();
 
+        /* 固定種子，確保每次重建的日期分布一致，方便展示與測試。 */
+        mt_srand(20260908);
+
         foreach ($students as $studentIndex => $student) {
             $profile = $ratingProfiles[$profilePlan[$studentIndex]];
-            $rotation = ($studentIndex * 3) % count($profile);
-            $ratings = array_merge(
-                array_slice($profile, $rotation),
-                array_slice($profile, 0, $rotation)
-            );
+
+            /*
+             * 將較高分安排到較受肯定的題目，並對相鄰題目做少量交換，
+             * 讓題目平均分數有層次，但不會顯得每份問卷完全相同。
+             */
+            $studentPriority = $questionPriority;
+
+            for ($pairStart = 0; $pairStart < 20; $pairStart += 2) {
+                if (($studentIndex + intdiv($pairStart, 2)) % 4 === 0) {
+                    [$studentPriority[$pairStart], $studentPriority[$pairStart + 1]] = [
+                        $studentPriority[$pairStart + 1],
+                        $studentPriority[$pairStart],
+                    ];
+                }
+            }
+
+            $ratings = array_fill(0, 20, 1);
+
+            foreach ($studentPriority as $rank => $questionIndex) {
+                $ratings[$questionIndex] = $profile[$rank];
+            }
 
             $averageScore = round(array_sum($ratings) / count($ratings), 2);
+
+            /* 將回饋自然地分散在最近 120 天，而不是固定每小時一筆。 */
             $submittedAt = date(
                 'Y-m-d H:i:s',
-                strtotime('-' . ($studentIndex + 1) . ' hours')
+                time() - mt_rand(0, (120 * 24 * 60 * 60) - 1)
             );
 
             $db->table('feedback_submissions')->insert([

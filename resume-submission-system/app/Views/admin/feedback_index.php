@@ -233,6 +233,176 @@
             font-size: 13px;
         }
 
+        .score-bar-track {
+            height: 10px;
+            margin: 10px 0 8px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e2e8f0;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        }
+
+        .feedback-analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .analytics-card {
+            padding: 22px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        .analytics-card h3 {
+            margin: 0 0 18px;
+            color: #0f172a;
+            font-size: 18px;
+        }
+
+        .insight-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .insight-card {
+            padding: 18px;
+            border-radius: 14px;
+        }
+
+        .insight-card--best {
+            border: 1px solid #a7f3d0;
+            background: #ecfdf5;
+        }
+
+        .insight-card--worst {
+            border: 1px solid #fed7aa;
+            background: #fff7ed;
+        }
+
+        .insight-card__label {
+            display: block;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .insight-card__score {
+            display: block;
+            margin-bottom: 7px;
+            color: #0f172a;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .insight-card__question {
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .question-chart {
+            display: grid;
+            gap: 13px;
+            max-height: 520px;
+            padding-right: 6px;
+            overflow-y: auto;
+        }
+
+        .question-row {
+            display: grid;
+            grid-template-columns: minmax(170px, 1.6fr) minmax(130px, 2fr) 52px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .question-label {
+            overflow: hidden;
+            color: #475569;
+            font-size: 13px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .question-bar-track {
+            height: 12px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e2e8f0;
+        }
+
+        .question-bar-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #22c55e, #6366f1);
+        }
+
+        .question-score {
+            color: #4338ca;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: right;
+        }
+
+        .trend-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            min-height: 280px;
+            padding-top: 18px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .trend-column {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            min-width: 28px;
+            height: 250px;
+        }
+
+        .trend-value {
+            margin-bottom: 6px;
+            color: #4338ca;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .trend-bar {
+            width: min(34px, 72%);
+            min-height: 4px;
+            border-radius: 8px 8px 0 0;
+            background: linear-gradient(180deg, #6366f1, #a78bfa);
+        }
+
+        .trend-date {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 10px;
+            white-space: nowrap;
+            transform: rotate(-35deg);
+            transform-origin: center;
+        }
+
+        .analytics-empty {
+            padding: 40px 10px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
         .feedback-table-card {
             overflow: hidden;
             border: 1px solid #e2e8f0;
@@ -375,6 +545,10 @@
             .feedback-filter-form {
                 grid-template-columns: 1fr 1fr;
             }
+
+            .feedback-analytics-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 600px) {
@@ -388,6 +562,14 @@
 
             .feedback-filter-form {
                 grid-template-columns: 1fr;
+            }
+
+            .insight-list {
+                grid-template-columns: 1fr;
+            }
+
+            .question-row {
+                grid-template-columns: minmax(120px, 1fr) minmax(90px, 1fr) 46px;
             }
 
             .feedback-filter-actions,
@@ -494,14 +676,25 @@
     </section>
 
     <section class="feedback-distribution">
-        <h3>平均分數分布</h3>
+        <h3>1～5 分人數分布</h3>
 
         <div class="score-list">
+            <?php $maxScoreCount = max(1, ...array_values($scoreDistribution ?? [])); ?>
             <?php foreach ([5, 4, 3, 2, 1] as $score): ?>
                 <div class="score-item">
                     <strong>
                         <?= esc($scoreDistribution[$score] ?? 0) ?>
                     </strong>
+
+                    <div class="score-bar-track" aria-hidden="true">
+                        <div
+                            class="score-bar-fill"
+                            style="width: <?= round(
+                                (($scoreDistribution[$score] ?? 0) / $maxScoreCount) * 100,
+                                2
+                            ) ?>%;"
+                        ></div>
+                    </div>
 
                     <span>
                         <?= $score ?> 分區間
@@ -509,6 +702,117 @@
                 </div>
             <?php endforeach; ?>
         </div>
+    </section>
+
+    <section class="insight-list">
+        <article class="insight-card insight-card--best">
+            <span class="insight-card__label">最滿意題目</span>
+            <?php if (!empty($bestQuestion)): ?>
+                <strong class="insight-card__score">
+                    <?= number_format((float) $bestQuestion['average_score'], 2) ?> / 5
+                </strong>
+                <div class="insight-card__question">
+                    第 <?= esc($bestQuestion['question_number']) ?> 題：
+                    <?= esc($bestQuestion['question_text']) ?>
+                </div>
+            <?php else: ?>
+                <div class="analytics-empty">尚無評分資料</div>
+            <?php endif; ?>
+        </article>
+
+        <article class="insight-card insight-card--worst">
+            <span class="insight-card__label">最需要改善題目</span>
+            <?php if (!empty($worstQuestion)): ?>
+                <strong class="insight-card__score">
+                    <?= number_format((float) $worstQuestion['average_score'], 2) ?> / 5
+                </strong>
+                <div class="insight-card__question">
+                    第 <?= esc($worstQuestion['question_number']) ?> 題：
+                    <?= esc($worstQuestion['question_text']) ?>
+                </div>
+            <?php else: ?>
+                <div class="analytics-empty">尚無評分資料</div>
+            <?php endif; ?>
+        </article>
+    </section>
+
+    <section class="feedback-analytics-grid">
+        <article class="analytics-card">
+            <h3>各題平均分數</h3>
+
+            <?php if (!empty($questionAverages)): ?>
+                <div class="question-chart">
+                    <?php foreach ($questionAverages as $question): ?>
+                        <div class="question-row">
+                            <span
+                                class="question-label"
+                                title="<?= esc($question['question_text']) ?>"
+                            >
+                                第 <?= esc($question['question_number']) ?> 題｜<?= esc($question['question_text']) ?>
+                            </span>
+
+                            <div class="question-bar-track" aria-hidden="true">
+                                <div
+                                    class="question-bar-fill"
+                                    style="width: <?= min(
+                                        100,
+                                        max(0, ((float) $question['average_score'] / 5) * 100)
+                                    ) ?>%;"
+                                ></div>
+                            </div>
+
+                            <strong class="question-score">
+                                <?= number_format((float) $question['average_score'], 2) ?>
+                            </strong>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="analytics-empty">尚無各題評分資料</div>
+            <?php endif; ?>
+        </article>
+
+        <article class="analytics-card">
+            <h3>每日回饋數量趨勢（最近 14 天）</h3>
+
+            <?php if (!empty($dailyTrend)): ?>
+                <?php
+                    $trendMax = max(
+                        1,
+                        ...array_map(
+                            static fn ($day) => (int) ($day['total'] ?? 0),
+                            $dailyTrend
+                        )
+                    );
+                ?>
+
+                <div class="trend-chart">
+                    <?php foreach ($dailyTrend as $day): ?>
+                        <?php
+                            $barHeight = max(
+                                4,
+                                round(((int) $day['total'] / $trendMax) * 190, 2)
+                            );
+                        ?>
+                        <div class="trend-column">
+                            <span class="trend-value">
+                                <?= esc($day['total']) ?>
+                            </span>
+                            <div
+                                class="trend-bar"
+                                style="height: <?= $barHeight ?>px;"
+                                title="<?= esc($day['feedback_date']) ?>：<?= esc($day['total']) ?> 筆"
+                            ></div>
+                            <span class="trend-date">
+                                <?= esc(date('m/d', strtotime($day['feedback_date']))) ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="analytics-empty">尚無每日回饋資料</div>
+            <?php endif; ?>
+        </article>
     </section>
 
     <?php
