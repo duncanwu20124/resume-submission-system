@@ -96,13 +96,13 @@ class DemoFeedbackSeeder extends Seeder
 
         /* 40 份資料的分布：5 分 4 份、4 分 18 份、3 分 12 份、2 分 5 份、1 分 1 份。 */
         $profilePlan = array_merge(
-            array_fill(0, 4, 'excellent'),
-            array_fill(0, 9, 'good_high'),
-            array_fill(0, 9, 'good_low'),
-            array_fill(0, 6, 'average'),
-            array_fill(0, 6, 'fair'),
-            array_fill(0, 5, 'low'),
-            array_fill(0, 1, 'very_low')
+            array_fill(0, 600, 'excellent'),
+            array_fill(0, 1000, 'good_high'),
+            array_fill(0, 1000, 'good_low'),
+            array_fill(0, 500, 'average'),
+            array_fill(0, 500, 'fair'),
+            array_fill(0, 320, 'low'),
+            array_fill(0, 80, 'very_low')
         );
 
         /* 保留學號 615415015，讓 Demo 當天可以親自填寫。 */
@@ -111,12 +111,12 @@ class DemoFeedbackSeeder extends Seeder
             ->select('id, student_id, name, email')
             ->where('student_id !=', '615415015')
             ->orderBy('id', 'ASC')
-            ->limit(40)
+            ->limit(4000)
             ->get()
             ->getResultArray();
 
-        if (count($students) < 40) {
-            throw new RuntimeException('可使用的學生不足 40 人，無法建立完整示範資料。');
+        if (count($students) < 4000) {
+            throw new RuntimeException('可使用的學生不足 4000 人，無法建立完整示範資料。');
         }
 
         $db->transStart();
@@ -197,6 +197,6 @@ class DemoFeedbackSeeder extends Seeder
             throw new RuntimeException('示範回饋資料寫入失敗，交易已回滾。');
         }
 
-        echo "成功重新建立 40 份繁體中文示範回饋。\n";
+        echo "成功重新建立 4000 份繁體中文示範回饋。\n";
     }
 }
