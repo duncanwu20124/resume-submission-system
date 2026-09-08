@@ -49,6 +49,7 @@ $isAdminOrAbove = in_array($currentRole, ['super_admin', 'admin'], true);
         <?php endif; ?>
         <a class="admin-sidebar__link <?= $isActive('AdminController/pdfDuplicates') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/pdfDuplicates">PDF 重複檢查</a>
         <a class="admin-sidebar__link <?= $isActive('AdminController/scoring') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/scoring">學生評分</a>
+        <a class="admin-sidebar__link <?= $isActive('AdminController/feedback') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/feedback">使用回饋管理</a>
         <?php if ($isAdminOrAbove): ?>
             <a class="admin-sidebar__link <?= $isActive('AdminController/allocation') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/allocation">分發管理</a>
             <a class="admin-sidebar__link <?= $isActive('AdminController/announcements') ? 'admin-sidebar__link--active' : '' ?>" href="/AdminController/announcements">公告管理</a>

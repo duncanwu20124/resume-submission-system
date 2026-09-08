@@ -27,6 +27,8 @@ $routes->group('student', function ($routes) {
     $routes->get('preferences', 'Student\PreferenceController::index', ['filter' => 'student_auth']);
     $routes->post('preferences', 'Student\PreferenceController::save', ['filter' => 'student_auth']);
     $routes->get('preferences/receipt', 'Student\PreferenceController::receipt', ['filter' => 'student_auth']);
+    $routes->get('feedback', 'Student\FeedbackController::index', ['filter' => 'student_auth']);
+    $routes->post('feedback', 'Student\FeedbackController::save', ['filter' => 'student_auth']);
     $routes->get('result', 'Student\ResultController::index', ['filter' => 'student_auth']);
 });
 
@@ -86,10 +88,15 @@ $routes->post('AdminController/createAnnouncement', 'Admin\AnnouncementControlle
 $routes->post('AdminController/toggleAnnouncement/(:num)', 'Admin\AnnouncementController::toggleAnnouncement/$1');
 $routes->post('AdminController/deleteAnnouncement/(:num)', 'Admin\AnnouncementController::deleteAnnouncement/$1');
 
-// 8. 操作日誌 (AuditLogController)
+// 8. 使用回饋管理 (AdminFeedbackController)
+$routes->get('AdminController/feedback/export', 'AdminFeedbackController::export');
+$routes->get('AdminController/feedback', 'AdminFeedbackController::index');
+$routes->get('AdminController/feedback/(:num)', 'AdminFeedbackController::show/$1');
+
+// 9. 操作日誌 (AuditLogController)
 $routes->get('AdminController/auditLogs', 'Admin\AuditLogController::index');
 
-// 9. 管理員帳號與角色管理 (AdminAuthController)
+// 10. 管理員帳號與角色管理 (AdminAuthController)
 $routes->get('AdminController/admins', 'Admin\AdminAuthController::manageAdmins');
 $routes->post('AdminController/admins/(:num)/role', 'Admin\AdminAuthController::updateAdminRole/$1');
 $routes->post('AdminController/admins/(:num)/delete', 'Admin\AdminAuthController::deleteAdmin/$1');
@@ -107,6 +114,9 @@ $routes->group('admin', function ($routes) {
     $routes->get('scoring', 'Admin\ScoringController::scoring');
     $routes->get('allocation', 'Admin\AllocationController::allocation');
     $routes->get('announcements', 'Admin\AnnouncementController::announcements');
+    $routes->get('feedback', 'AdminFeedbackController::index');
+    $routes->get('feedback/export', 'AdminFeedbackController::export');
+    $routes->get('feedback/(:num)', 'AdminFeedbackController::show/$1');
     $routes->get('audit-logs', 'Admin\AuditLogController::index');
     $routes->get('manage-admins', 'Admin\AdminAuthController::manageAdmins');
 });
